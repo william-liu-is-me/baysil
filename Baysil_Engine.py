@@ -1,7 +1,5 @@
 import pandas as pd
 import json
-# import psutil
-import pandas as pd
 import numpy as np
 from baysil_lib.Patient import *
 
