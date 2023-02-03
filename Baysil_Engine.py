@@ -7,7 +7,7 @@ from baysil_lib.Patient import *
 
 def main():
     # data read and clean up for client list
-    data = pd.read_csv('cleaned data/Client List.csv')
+    data = pd.read_csv('cleaned_data/Client List.csv')
     # fill nan with None
     data = data.replace(np.nan,None)
 
@@ -25,7 +25,7 @@ def main():
 
 
 
-    data = pd.read_csv('cleaned data/Blue Heron Babies and Birth Log.csv')
+    data = pd.read_csv('cleaned_data/Blue Heron Babies and Birth Log.csv')
     data = data.replace(np.nan,None)
 
     # check memory usage
@@ -49,7 +49,7 @@ def main():
 
 
     # read the data from Courses of Care.csv
-    data = pd.read_csv('cleaned data/Courses of Care.csv')
+    data = pd.read_csv('cleaned_data/Courses of Care.csv')
     data = data.replace(np.nan,None)
 
 
