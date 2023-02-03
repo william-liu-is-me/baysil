@@ -1,0 +1,11 @@
+{"SVD":"bay_deliveryPattern_svd","SVD at 29wks":"bay_deliveryPattern_svd","AVD":"bay_deliveryPattern_assisted",
+"AVD (forceps)":"bay_deliveryPattern_forceps","AVD- forceps":"bay_deliveryPattern_forceps","Forceps":"bay_deliveryPattern_forceps",
+"Vacuum Delivery":"bay_deliveryPattern_vacuum","C/S":"bay_deliveryPattern_cesarean","C0section":"bay_deliveryPattern_cesarean",
+"Caesarean":"bay_deliveryPattern_cesarean","C-Section":"bay_deliveryPattern_cesarean","C/S - rpt":"bay_deliveryPattern_repeatCesarean",
+"Elective repeat C-section":"bay_deliveryPattern_repeatCesarean","Planned C-Section":"bay_deliveryPattern_plannedCesarean","Induction":"bay_deliveryPattern_induced",
+"VBAC":"bay_deliveryPattern_vbac","Unknown":"bay_deliveryPattern_unknown","Stillbirth":"bay_pregnancyOutcome_stillbirthMapped to pregnancy outcome",
+"Premature":"bay_pregnancyOutcome_livePreterm","VBAC, SVD":"bay_deliveryPattern_vbac/bay_deliveryPattern_svd"}
+
+
+
+

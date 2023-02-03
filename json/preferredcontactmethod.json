@@ -1,0 +1,16 @@
+{ "preferredSystem":{
+
+    "home phone": "bay_contactSystem_phone","mobile phone":"bay_contactSystem_phone",
+    "email":"bay_contactSystem_email","any":null,"none":null,"husbands # first":null,
+    "yes":null},
+
+    "preferredSystemType":{"home phone":"bay_contactSystemType_landline",
+    "mobile phone":"bay_contactSystemType_mobile","email":null,"any":null,"none":null,
+    "husbands # first":null,"yes":null},
+
+    "preferredUse": {
+        "home phone": "bay_contactUse_home","mobile phone":"bay_contactUse_personal",
+        "email":null,"any":null,"none":null,
+        "husbands # first":null,"yes":null}
+}
+
