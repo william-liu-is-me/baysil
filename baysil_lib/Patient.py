@@ -30,6 +30,7 @@ class Person:
 
 
 class Mother(Person):
+
     def __init__(self,client_name=None,first_name=None,middle_name=None,last_name=None,partner_name=None,home_phone=None,work_phone_with_extension=None,mobile_phone=None,address=None,city=None,province=None,postal_code=None,email=None,
                 ohip_number=None,date_of_birth=None,may_contact=None,contact_method=None,coc_id=None,children=None,episode=None):
         super().__init__(first_name,middle_name,last_name,partner_name,home_phone,work_phone_with_extension,mobile_phone,address,city,province,postal_code,email,
@@ -51,23 +52,23 @@ class Mother(Person):
     def create_dict_for_all_information(self):
         return super().create_dict_for_all_information()
 
-    def parse_ohip_number(self):
+    def parse_mother_ohip_number(self):
 
         if self.ohip_number == None:
                 return None
                 #remove space in the string
         else:
-                self.ohip_number = self.ohip_number.replace(' ','')
+                ohip_number = self.ohip_number.replace(' ','')
                 try:
                 #check if the last two characters are letters and first 10 characters are digits
-                        if self.ohip_number[:-2].isdigit() and self.ohip_number[-2:].isalpha():
-                                version = self.ohip_number[-2:]
-                                number = self.ohip_number[:-2]
-                                return str(number)+'-'+str(version)
+                        if ohip_number[:-2].isdigit() and ohip_number[-2:].isalpha():
+                                version = ohip_number[-2:]
+                                number = ohip_number[:-2]
+                                return str(number) # +'-'+str(version)
                                 # number = number[:4] + ' ' + number[4:7] + ' ' + number[7:]
-                        elif self.ohip_number[:-2].isdigit() and not self.ohip_number[-2:].isalpha():
+                        elif ohip_number[:-2].isdigit() and not ohip_number[-2:].isalpha():
                                 version = None
-                                number = self.ohip_number
+                                number = ohip_number
                                 return str(number)
                                 # add one space after 4 digits and another space after 7 digits
                                 # number = number[:4] + ' ' + number[4:7] + ' ' + number[7:]
@@ -105,9 +106,11 @@ class Mother(Person):
         mother_record['firstName'] = self.first_name
         mother_record['middleName'] = self.middle_name
         mother_record['lastName'] = self.last_name
-        try:
-            mother_record['preferredName'] = str(self.first_name or '') + ' ' + str(self.middle_name or '') + ' ' + str(self.last_name or '')
-        except:
+
+        # assume data clean up has been done, first name and last name always exist
+        if self.middle_name:
+            mother_record['preferredName'] = self.first_name + ' ' + self.middle_name + ' ' + self.last_name
+        else:
             mother_record['preferredName'] = self.first_name + ' ' + self.last_name
         
         mother_record['gender'] = 'bay_gender_female'
@@ -125,8 +128,8 @@ class Mother(Person):
                 mother_record['populationGroups'] = None
 
         # parse ohip number, if not valid, return None 
-        identifier = self.parse_ohip_number()
-
+        identifier = self.parse_mother_ohip_number()
+        
         # as per 1.30 meeting, mother CoC ID is not required
         mother_record['identifications'] = [
                 {'system':'bay_idSystem_ohip',
@@ -420,6 +423,8 @@ class Baby(Person):
         mother_episode = self.build_mother_episode(mother_episode)
         self.mother.episode.append(mother_episode)
 
+        record_dict['notes'] = self.create_dict_for_all_information()
+
 
     def parse_feeding_method(self):
 
@@ -505,20 +510,9 @@ class Baby(Person):
         'notes':self.parse_notes_remove_html()
         }
 
-        mother_episode['notes'] = self.create_dict_for_all_information()
-
         # update the caremanager, primary midwife and secondary midwife, 2nd fee, mw coordinating, other2.
         self.update_mother_care_team_participants(mother_episode)
-
-        # send episode to the mother instance
-        # update the episode observation for mother and delete the baby observation
-
-        # need to understand the stillbirth and premature
-        # replace the episode observations with the temp_list
         
-        # make a hard copy of the record_dict
-
-
         return mother_episode
 
 
@@ -579,9 +573,8 @@ class Baby(Person):
             # also to delete the bay_observable_deliveryPatternAtBirth
             record_dict['episode']['observations'].pop(4)
 
-        record_dict['notes'] = self.create_dict_for_all_information()
-        
         self.update_baby_care_team_participants(record_dict)#, mw_2nd_fee, mw_coordinating, mw_other2)
+
 
 
     def update_baby_care_team_participants(self,record_dict):# ,mw_2nd_fee,mw_coordinating,mw_other2):
