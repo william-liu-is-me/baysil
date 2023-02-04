@@ -330,7 +330,8 @@ class Baby(Person):
                 gender = 'bay_gender_male'
             else:
                 gender = self.gender
-                return gender 
+        
+            return gender 
 
     def build_baby_record(self,mother_instance,PopulationGroupJson):
         self.mother = mother_instance
