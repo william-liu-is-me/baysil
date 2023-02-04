@@ -164,18 +164,35 @@ class Mother(Person):
                 }
                 
         
-        # question, if data missing, cannot perfrom string concatenation, how to handle this?
+        # if address is None, text will be None
+
+        # manual data cleanup for address and city, province, postal code is required
+        if self.address == None:
+
+                text = None
+                province = self.province
+        else:
+                # convert ON/Ont to Ontario
+                if self.province == 'Ont' or self.province == 'ON':
+                        province = 'Ontario'
+                else:
+                        province = self.province
+
+                text = str(self.address or '') + ', ' + str(self.city or '') + ', ' + str(self.province or '') + ' ' + str(self.postal_code or '') + ' Canada'
+
+        
         mother_record['locations'] = [
                 {'name':'Home address',
                 'address':{
-                        'text': str(self.address or '') + ', ' + str(self.city or '') + ', ' + str(self.province or '') + ' ' + str(self.postal_code or '') + ' Canada',
+                        'text': text,
                         'streetAddress':self.address,
                         'postalCode':self.postal_code,
                         'city':self.city,
-                        'region':self.province,
+                        'region':province,
                         'country':'Canada'
                 }}
         ]
+
         try:
                 split_name = self.partner_name.split(' ')
                 if len(split_name) == 2:
@@ -209,6 +226,7 @@ class Mother(Person):
         ]
         del firstname,middle_name,lastname,split_name
 
+        # mother episode is created by each baby episode and attend to mother.episode
         mother_record['episode'] = self.episode
 
         # need to update account and notes for mother episode
@@ -227,7 +245,8 @@ class Baby(Person):
                 mobile_phone=None,address=None,city=None,province=None,postal_code=None,email=None,
                 ohip_number=None,date_of_birth=None,may_contact=None,contact_method=None,
                 mother=None,episode=None,gender= None,feeding_at_birth=None,feeding_at_D_C=None,delivery_type=None,
-                toc=None,mw_primary=None,mw_secondary=None,coc_id=None,birth_place = None,baby_ohc=None):
+                toc=None,mw_primary=None,mw_secondary=None,mw_2nd_fee=None,mw_coordinating=None,
+                mw_other2=None,coc_id=None,birth_place = None,baby_ohc=None):
         super().__init__(first_name,middle_name,last_name,partner_name,home_phone,work_phone_with_extension,
                 mobile_phone,address,city,province,postal_code,email,
                 ohip_number,date_of_birth,may_contact,contact_method,coc_id)
@@ -241,6 +260,9 @@ class Baby(Person):
         self.toc = toc
         self.mw_primary = mw_primary
         self.mw_secondary = mw_secondary
+        # self.mw_2nd_fee = mw_2nd_fee
+        # self.mw_coordinating = mw_coordinating
+        # self.mw_other2 = mw_other2
         self.birth_place = birth_place
         self.baby_ohc = baby_ohc
 
@@ -389,15 +411,32 @@ class Baby(Person):
                         'lastName':None,
                 },
                 'careTeamParticipants':[
+                        # MW-billing
                         {'firstName':None,
                         'middleName':None,
                         'lastName':None,
                         'role':'bay_providerRole_primaryMidwife'},
+                        # MW-other
                         {
                         'firstName':None,
                         'middleName':None,
                         'lastName':None,
-                        'role':'bay_providerRole_secondaryMidwife'}
+                        'role':'bay_providerRole_secondaryMidwife'},
+                        # MW-2nd fee
+                        {'firstName':None,
+                        'middleName':None,
+                        'lastName':None,
+                        'role':'bay_providerRole_secondaryMidwife'},
+                        # MW-coordinating
+                        {'firstName':None,
+                        'middleName':None,
+                        'lastName':None,
+                        'role':'bay_providerRole_coordinatingMidwife'},
+                        # MW-other2
+                        {'firstName':None,
+                        'middleName':None,
+                        'lastName':None,
+                        'role':'bay_providerRole_midwife'},
                         ],
                 # baby and mother has different obersevations
                 'observations':[
@@ -430,25 +469,14 @@ class Baby(Person):
         caremanager = self.mw_billing.split(' ') if pd.isnull(self.mw_billing) == False else None
         primary_midwife = self.mw_primary.split(' ') if pd.isnull(self.mw_primary) == False else None
         secondary_midwife = self.mw_secondary.split(' ') if pd.isnull(self.mw_secondary) == False else None
-        
-        # update the caremanager, primary midwife and secondary midwife
-        try:
-       
-            record_dict['episode']['careManager']['firstName'] = caremanager[0]
-            record_dict['episode']['careManager']['lastName'] = caremanager[1]
-        except:
-                pass
-        try:
-            record_dict['episode']['careTeamParticipants'][0]['firstName'] = primary_midwife[0]
-            record_dict['episode']['careTeamParticipants'][0]['lastName'] = primary_midwife[1]
-        except:
-                pass
-        try:
-            record_dict['episode']['careTeamParticipants'][1]['firstName'] = secondary_midwife[0]
-            record_dict['episode']['careTeamParticipants'][1]['lastName'] = secondary_midwife[1]
-        except:
-                pass
+        mw_2nd_fee = self.mw_2nd_fee.split(' ') if pd.isnull(self.mw_2nd_fee) == False else None
+        mw_coordinating = self.mw_coordinating.split(' ') if pd.isnull(self.mw_coordinating) == False else None
+        mw_other2 = self.mw_other2.split(' ') if pd.isnull(self.mw_other2) == False else None
 
+        # update the caremanager, primary midwife and secondary midwife, 2nd fee, mw coordinating, other2.
+        self.update_caremanager(record_dict, caremanager, primary_midwife, secondary_midwife, mw_2nd_fee, mw_coordinating, mw_other2)
+
+        del caremanager, primary_midwife, secondary_midwife, mw_2nd_fee, mw_coordinating, mw_other2
 
         # send episode to the mother instance
         # update the episode observation for mother and delete the baby observation
@@ -495,6 +523,42 @@ class Baby(Person):
         del record_dict_copy
 
         return record_dict
+
+    def update_caremanager(self,record_dict,caremanager,primary_midwife,secondary_midwife,mw_2nd_fee,mw_coordinating,mw_other2):
+        try:
+       
+            record_dict['episode']['careManager']['firstName'] = caremanager[0]
+            record_dict['episode']['careManager']['lastName'] = caremanager[1]
+        except:
+                pass
+        try:
+            record_dict['episode']['careTeamParticipants'][0]['firstName'] = primary_midwife[0]
+            record_dict['episode']['careTeamParticipants'][0]['lastName'] = primary_midwife[1]
+        except:
+                pass
+        try:
+            record_dict['episode']['careTeamParticipants'][1]['firstName'] = secondary_midwife[0]
+            record_dict['episode']['careTeamParticipants'][1]['lastName'] = secondary_midwife[1]
+        except:
+                pass
+        try:
+                record_dict['episode']['careTeamParticipants'][2]['firstName'] = mw_2nd_fee[0]
+                record_dict['episode']['careTeamParticipants'][2]['lastName'] = mw_2nd_fee[1]
+        except:
+                pass
+        try:
+                record_dict['episode']['careTeamParticipants'][3]['firstName'] = mw_coordinating[0]
+                record_dict['episode']['careTeamParticipants'][3]['lastName'] = mw_coordinating[1]
+        except:
+                pass
+        try:
+                record_dict['episode']['careTeamParticipants'][4]['firstName'] = mw_other2[0]
+                record_dict['episode']['careTeamParticipants'][4]['lastName'] = mw_other2[1]
+        except:
+                pass
+        
+
+
 
     def parse_special_population_description(self,PopulationGroupJson):
 

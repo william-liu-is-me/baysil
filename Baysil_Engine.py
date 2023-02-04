@@ -40,7 +40,9 @@ def main():
                     date_of_birth=row['Delivery Date'],
                     gender =row['Baby Gender'],feeding_at_birth=row['Feeding at Birth'],
                     feeding_at_D_C=row['Feeding at D/C'],
-                    delivery_type=row['Delivery Type'],toc=row['ToC'],mw_primary=row['MW Attending - primary'],mw_secondary=row['MW Attending - secondary'],
+                    delivery_type=row['Delivery Type'],toc=row['ToC'],
+                    mw_primary=row['MW Attending - primary'],
+                    mw_secondary=row['MW Attending - secondary'],
                     coc_id=row['CoC ID'],birth_place = row['Birthplace'],baby_ohc=row['Baby OHC'])
         baby_list.append(baby)
 
@@ -85,9 +87,7 @@ def main():
         baby.ipca = row['IPCA']
         baby.ipca_comment = row['IPCA Comment']
         baby.notes = row['Notes']
-        baby.special_instructions = row['Special Instructions']
-        baby.chart_scan_date = row['Chart Scan Date']
-        baby.chart_shred_date = row['Chart Shred Date']
+        
 
 
 
@@ -191,8 +191,8 @@ def main():
 
         # make this family list into a json file
 
-        with open(f'sample/{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:
-            json.dump(family_list, outfile)
+        # with open(f'sample/{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:
+        #     json.dump(family_list, outfile)
 
     df = pd.DataFrame({'mother_name':temp_list_1,'mother_cod_id':temp_list_3,'number_of_children':temp_list_2})
     df.to_csv('check_list/number of baby for each mother.csv',index=False)
