@@ -3,7 +3,6 @@ import json
 import numpy as np
 from baysil_lib.Patient import *
 
-# 4163212070
 
 def main():
     # data read and clean up for client list
@@ -88,14 +87,9 @@ def main():
         baby.ipca_comment = row['IPCA Comment']
         baby.notes = row['Notes']
         
-
-
-
 # at this moment, baby instance has all information 
 # from the birth log, blue heron baby and the course of care list
 # mother instance has all information from the client list
-
-
 
     # create a family dictionary with mother
 
@@ -105,8 +99,6 @@ def main():
     for mother in mother_list:
         # create a dictionary with mother name as key and mother instance as value
         mother_dict[mother.client_name] = mother
-
-
 
     n = 0
     m = 0
@@ -128,7 +120,6 @@ def main():
             baby_first_name.append(baby.first_name)
             baby_last_name.append(baby.last_name)
             mother_name.append(baby.mother_name)
-
 
             n += 1
             # make the check list as df
