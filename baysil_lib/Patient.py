@@ -32,7 +32,7 @@ class Person:
 class Mother(Person):
 
     def __init__(self,client_name=None,first_name=None,middle_name=None,last_name=None,partner_name=None,home_phone=None,work_phone_with_extension=None,mobile_phone=None,address=None,city=None,province=None,postal_code=None,email=None,
-                ohip_number=None,date_of_birth=None,may_contact=None,contact_method=None,coc_id=None,children=None,episode=None):
+                ohip_number=None,date_of_birth=None,may_contact=None,contact_method=None,coc_id=None,children=None,episode=None,longdistance=None,secondary_address = None):
         super().__init__(first_name,middle_name,last_name,partner_name,home_phone,work_phone_with_extension,mobile_phone,address,city,province,postal_code,email,
                 ohip_number,date_of_birth,may_contact,contact_method,coc_id)
         self.children = []
@@ -42,6 +42,8 @@ class Mother(Person):
         self.client_name = client_name
         self.middle_name = middle_name
         self.coc_id = []
+        self.longdistance = longdistance
+        self.secondary_address = secondary_address
 
     
     def add_baby(self,baby):
@@ -49,8 +51,31 @@ class Mother(Person):
         self.children.append(baby)
 
     # inherit from Person class
-    def create_dict_for_all_information(self):
-        return super().create_dict_for_all_information()
+    def create_mother_dict_for_all_information(self):
+        mother_original_data_dictionary = {}
+        mother_original_data_dictionary['client_name'] = self.client_name
+        mother_original_data_dictionary['first_name'] = self.first_name
+        mother_original_data_dictionary['middle_name'] = self.middle_name
+        mother_original_data_dictionary['last_name'] = self.last_name
+        mother_original_data_dictionary['partner_name'] = self.partner_name
+        mother_original_data_dictionary['home_phone'] = self.home_phone
+        mother_original_data_dictionary['work_phone_with_extension'] = self.work_phone_with_extension
+        mother_original_data_dictionary['mobile_phone'] = self.mobile_phone
+        mother_original_data_dictionary['isLongDistance'] = self.longdistance
+        mother_original_data_dictionary['address'] = self.address
+        mother_original_data_dictionary['city'] = self.city
+        mother_original_data_dictionary['province'] = self.province
+        mother_original_data_dictionary['postal_code'] = self.postal_code
+        mother_original_data_dictionary['secondary address'] = self.secondary_address
+        mother_original_data_dictionary['email'] = self.email
+        mother_original_data_dictionary['ohip_number'] = self.ohip_number
+        mother_original_data_dictionary['date_of_birth'] = self.date_of_birth
+        mother_original_data_dictionary['may_contact'] = self.may_contact
+        mother_original_data_dictionary['contact_method'] = self.contact_method
+        # end of client list file data
+
+        return {'Imported date': None,'original data':mother_original_data_dictionary}
+
 
     def parse_mother_ohip_number(self):
 
@@ -234,7 +259,7 @@ class Mother(Person):
 
         # need to update account and notes for mother episode
 
-        mother_record['notes']  = self.create_dict_for_all_information()
+        mother_record['notes']  = self.create_mother_dict_for_all_information()
 
         return mother_record
 
@@ -249,7 +274,7 @@ class Baby(Person):
                 ohip_number=None,date_of_birth=None,may_contact=None,contact_method=None,
                 mother=None,episode=None,gender= None,feeding_at_birth=None,feeding_at_D_C=None,delivery_type=None,
                 toc=None,mw_primary=None,mw_secondary=None,mw_2nd_fee=None,mw_coordinating=None,
-                mw_other2=None,coc_id=None,birth_place = None,baby_ohc=None):
+                mw_other2=None,coc_id=None,birth_place = None,baby_ohc=None,birth_place_comment=None):
         super().__init__(first_name,middle_name,last_name,partner_name,home_phone,work_phone_with_extension,
                 mobile_phone,address,city,province,postal_code,email,
                 ohip_number,date_of_birth,may_contact,contact_method,coc_id)
@@ -269,10 +294,55 @@ class Baby(Person):
         # self.mw_other2 = mw_other2
         self.birth_place = birth_place
         self.baby_ohc = baby_ohc
+        self.birth_place_comment = birth_place_comment
 
-    def create_dict_for_all_information(self):
-        return super().create_dict_for_all_information()
+    def create_baby_dict_for_all_information(self):
+        # create a baby dictionary for all original information
+        baby_dict = {}
+        baby_dict['coc id'] = self.coc_id
+        baby_dict['first name'] = self.first_name
+        baby_dict['last name'] = self.last_name
+        baby_dict['baby gender'] = self.gender 
+        baby_dict['feeding at birth'] = self.feeding_at_birth
+        baby_dict['feeding at D/C'] = self.feeding_at_D_C
+        baby_dict['baby ohip'] = self.ohip_number
+        # question: ignore field 1,2,3 for now 
+        baby_dict['delivery date'] = self.date_of_birth
+        baby_dict['delivery type'] = self.delivery_type
+        baby_dict['toc'] = self.toc
+        baby_dict['MW attending - primary'] = self.mw_primary
+        baby_dict['MW attending - secondary'] = self.mw_secondary
+        baby_dict['Birthplace'] = self.birth_place
+        baby_dict['Birthplace comment'] = self.birth_place_comment
+        # end of baby information from 2 baby files 
 
+        # question: courses of care file add in here?
+
+        baby_dict['Client Name'] = self.mother_name
+        baby_dict['special population'] = self.special_population
+        baby_dict['special population description'] = self.special_population_description
+        baby_dict['gravida'] = self.gravida
+        baby_dict['para'] = self.para
+        baby_dict['EDD'] = self.edd
+        baby_dict['Initial Date'] = self.initial_date
+        baby_dict['D/C'] = self.d_c
+        baby_dict['Billing Date'] = self.billing_date
+        baby_dict['Billable'] = self.billable
+        baby_dict['MW-billing'] = self.mw_billing
+        baby_dict['MW-other'] = self.mw_other
+        baby_dict['MW-other2'] = self.mw_other2
+        baby_dict['MW-coordinating'] = self.mw_coordinating
+        baby_dict['MW-2nd fee'] = self.mw_2nd_fee
+        baby_dict['IPCA'] = self.ipca
+        baby_dict['IPCA Comment'] = self.ipca_comment
+        baby_dict['Notes'] = self.notes
+        baby_dict['special instructions'] = self.special_instructions
+        baby_dict['chart scan date'] = self.chart_scan_date
+        baby_dict['chart shred date'] = self.chart_shred_date
+
+
+
+        return {'Imported date': None,'original data':baby_dict}
 
     def parse_baby_ohc(self):
         if self.baby_ohc:
@@ -419,7 +489,7 @@ class Baby(Person):
         mother_episode = self.build_mother_episode()
         self.mother.episode.append(mother_episode)
 
-        record_dict['notes'] = self.create_dict_for_all_information()
+        record_dict['notes'] = self.create_baby_dict_for_all_information()
 
         return record_dict
 

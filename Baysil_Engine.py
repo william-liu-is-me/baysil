@@ -17,7 +17,9 @@ def main():
         mother = Mother(row['Client Name'],row['First Name'],row['Middle Initials'],row['Last Name'],
                         row['Partner Name'],row['Home Phone'],row['Work Phone and Extension'],
                         row['Mobile Phone'],row['Address'],row['City'],row['Province'],row['Postal Code'],
-                        row['Email'],row['OHIP Number'],row['DoB'],row['May Contact'],row['May Contact Method'])
+                        row['Email'],row['OHIP Number'],row['DoB'],row['May Contact'],
+                        row['May Contact Method'],longdistance =row['IsLongDistance'],
+                        secondary_address=row['Secondary Address'])
         mother_list.append(mother)
 
     del data
@@ -42,7 +44,8 @@ def main():
                     delivery_type=row['Delivery Type'],toc=row['ToC'],
                     mw_primary=row['MW Attending - primary'],
                     mw_secondary=row['MW Attending - secondary'],
-                    coc_id=row['CoC ID'],birth_place = row['Birthplace'],baby_ohc=row['Baby OHC'])
+                    coc_id=row['CoC ID'],birth_place = row['Birthplace'],baby_ohc=row['Baby OHC'],
+                    birth_place_comment = row['Birthplace comment'])
         baby_list.append(baby)
 
     # check memory usage
@@ -86,7 +89,11 @@ def main():
         baby.ipca = row['IPCA']
         baby.ipca_comment = row['IPCA Comment']
         baby.notes = row['Notes']
-        
+        baby.special_instructions = row['Special Instructions']
+        baby.chart_scan_date = row['Chart Scan Date']
+        baby.chart_shred_date = row['Chart Shred Date']
+
+
 # at this moment, baby instance has all information 
 # from the birth log, blue heron baby and the course of care list
 # mother instance has all information from the client list
