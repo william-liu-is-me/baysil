@@ -26,7 +26,7 @@ class Person:
 
     def create_dict_for_all_information(self):
         # need data mapping support 
-        return 'Pending for future development'
+        return {'Imported date':'date','key_value_pair':'All original data. Pending for future development'}
 
 
 class Mother(Person):
@@ -255,6 +255,7 @@ class Baby(Person):
         self.gender = gender
         self.episode = episode
         self.feeding_at_birth = feeding_at_birth
+        self.date_of_birth = date_of_birth
         self.feeding_at_D_C = feeding_at_D_C
         self.delivery_type = delivery_type
         self.toc = toc
@@ -319,15 +320,24 @@ class Baby(Person):
 
         except:
                 pass
-                
+    def gender_mapping_for_baby(self):
+            if self.gender == 'F':
+                gender = 'bay_gender_famale'
+            elif self.gender == 'M':
+                gender = 'bay_gender_male'
+            else:
+                gender = self.gender
+                return gender 
+
     def build_baby_record(self,mother_instance,PopulationGroupJson):
         self.mother = mother_instance
         record_dict = {}
         record_dict['firstName'] = self.first_name
-        record_dict['middleName'] = self.middle_name if self.middle_name else None
+        record_dict['middleName'] = None #self.middle_name if self.middle_name else None
         record_dict['lastName'] = self.last_name
-        record_dict['preferredName'] = str(self.first_name or '') + ' ' + str(self.last_name or '')
-        record_dict['gender'] = self.gender
+        record_dict['preferredName'] = None #str(self.first_name or '') + ' ' + str(self.last_name or '')
+        gender = self.gender_mapping_for_baby()
+        record_dict['gender'] = gender
         record_dict['dateOfBirth'] = self.date_of_birth
         record_dict['populationGroups'] = self.parse_special_population_description(PopulationGroupJson)
         # pass this populationgroups to mother instance
@@ -336,14 +346,14 @@ class Baby(Person):
         # parse baby ohc
         identifier = self.parse_baby_ohc()
 
-        record_dict['identifications'] = [
-                {'system':'bay_idSystem_ohip',
-                'identifier':identifier},
-                # 'identifierVersion':version},
-                {'system':'bay_idSystem_internal',
-                'name':'CoC ID',
-                'identifier':str(self.coc_id or '')+'-B'}
-        ]
+        record_dict['identifications'] = {'system':'bay_idSystem_ohip',
+                'identifier':identifier}
+                
+                # inside identifications, coc id is not required
+                # {'system':'bay_idSystem_internal',
+                # 'name':'CoC ID',
+                # 'identifier':str(self.coc_id or '')+'-B'}
+        
         # add baby's coc_id to mother's coc_id
         # self.mother.coc_id = self.coc_id
 
@@ -365,6 +375,8 @@ class Baby(Person):
         ]
         record_dict['contactPreference'] = {
                 'mayBeContacted':self.mother.may_contact,
+                'preferredSystem':None,
+                'preferredUse':None,
                 'preferredRelative':'bay_relationshipType_mother'
         }
         # here we need to pass the address from mother to baby
@@ -387,24 +399,139 @@ class Baby(Person):
                 }}
         ]
 
-        record_dict['relative'] = [
+        record_dict['relatives'] = [
                 {'identifiedInSystem':'bay_idSystem_internal',
                 'idSystemName':'CoC ID',
                 'identifiedAs':str(self.coc_id),
-                'firstName':self.mother.first_name,
-                'middleName':self.mother.middle_name,
-                'lastName':self.mother.last_name,
-                'preferredName':str(self.mother.first_name or '') + ' ' + str(self.mother.last_name or ''),
+                # as per requirements
+                'firstName':None,#self.mother.first_name,
+                'middleName':None,#self.mother.middle_name,
+                'lastName':None,#self.mother.last_name,
+                'preferredName':None,#str(self.mother.first_name or '') + ' ' + str(self.mother.last_name or ''),
                 'relationship':'bay_relationshipType_mother'}
         ]
 
         # mw_billing
         
         # build the observation outside of the episode, one copy for baby and one copy for mother
+        
+        self.build_baby_episode(record_dict)
+        mother_episode = {}
+        mother_episode = self.build_mother_episode(mother_episode)
+        self.mother.episode.append(mother_episode)
+
+
+    def parse_feeding_method(self):
+
+        # parse the feeding method is very complicated
+
+        return 'pending for mapping'
+
+
+        pass
+
+    def build_mother_episode(self,mother_episode):
+        mother_episode['episode'] = {
+        'start': self.initial_date,
+        'end': self.d_c,
+        'identifications':{
+                'system':'bay_idSystem_internal',
+                'name':'CoC ID',
+                'identifier':str(self.coc_id or '')
+        },
+        'careManager': {
+                'firstName':None,
+                'middleName':None,
+                'lastName':None,
+        },
+        'careTeamParticipants':[
+                # MW-billing
+                {'firstName':None,
+                'middleName':None,
+                'lastName':None,
+                'role':'bay_providerRole_primaryMidwife'},
+                # MW-other
+                {
+                'firstName':None,
+                'middleName':None,
+                'lastName':None,
+                'role':'bay_providerRole_secondaryMidwife'},
+                # MW-2nd fee
+                {'firstName':None,
+                'middleName':None,
+                'lastName':None,
+                'role':'bay_providerRole_secondaryMidwife'},
+                # MW-coordinating
+                {'firstName':None,
+                'middleName':None,
+                'lastName':None,
+                'role':'bay_providerRole_coordinatingMidwife'},
+                # MW-other2
+                {'firstName':None,
+                'middleName':None,
+                'lastName':None,
+                'role':'bay_providerRole_midwife'},
+                ],
+        # baby and mother has different obersevations
+        'observations':[
+                {'observable':'bay_observable_gravida',
+                        'value':self.gravida,
+                        'notes':None},
+                        {'observable':'bay_observable_para',
+                        'value':self.para,
+                        'notes':None},
+                        {'observable':'bay_observable_edd',
+                        'value':self.edd,
+                        'notes':None},
+                        {'observable':'bay_observable_ipca',
+                        'value':self.ipca,
+                        'notes':self.ipca_comment},
+                        {'observable':'bay_observable_transferredCare',
+                        'value':self.toc,
+                        'notes':None},
+                        {'observable':'bay_observable_deliveryDate',
+                        'value':self.date_of_birth,
+                        'notes':None},
+                        {'observable':'bay_observable_deliveryPatternAll',
+                        'value':self.delivery_type,
+                        'notes':None},
+                ],
+        'account':{
+                'billable':self.billable,
+                        'notBillingReason':None,
+                        'billingDate':self.billing_date,
+                        'notes':None
+        },
+        'notes':self.parse_notes_remove_html()
+        }
+
+        mother_episode['notes'] = self.create_dict_for_all_information()
+
+        # update the caremanager, primary midwife and secondary midwife, 2nd fee, mw coordinating, other2.
+        self.update_mother_care_team_participants(mother_episode)
+
+        # send episode to the mother instance
+        # update the episode observation for mother and delete the baby observation
+
+        # need to understand the stillbirth and premature
+        # replace the episode observations with the temp_list
+        
+        # make a hard copy of the record_dict
+
+
+        return mother_episode
+
+
+    def build_baby_episode(self,record_dict):
 
         record_dict['episode'] = {
-                'start': self.initial_date,
+                'start': self.date_of_birth,
                 'end': self.d_c,
+                'identifications':{
+                        'system':'bay_idSystem_internal',
+                        'name':'CoC ID',
+                        'identifier':str(self.coc_id or '')+'-B'
+                },
                 'careManager': {
                         'firstName':None,
                         'middleName':None,
@@ -421,35 +548,20 @@ class Baby(Person):
                         'firstName':None,
                         'middleName':None,
                         'lastName':None,
-                        'role':'bay_providerRole_secondaryMidwife'},
-                        # MW-2nd fee
-                        {'firstName':None,
-                        'middleName':None,
-                        'lastName':None,
-                        'role':'bay_providerRole_secondaryMidwife'},
-                        # MW-coordinating
-                        {'firstName':None,
-                        'middleName':None,
-                        'lastName':None,
-                        'role':'bay_providerRole_coordinatingMidwife'},
-                        # MW-other2
-                        {'firstName':None,
-                        'middleName':None,
-                        'lastName':None,
-                        'role':'bay_providerRole_midwife'},
+                        'role':'bay_providerRole_secondaryMidwife'}
                         ],
                 # baby and mother has different obersevations
                 'observations':[
                         {'observable':'bay_observable_feedingAtBirth',
-                        'value':self.feeding_at_birth,
+                        'value':self.parse_feeding_method(),
                         'notes':self.feeding_at_birth},
                         {'observable':'bay_observable_feedingAtDischarge',
-                        'value':self.feeding_at_D_C,
+                        'value':self.parse_feeding_method(),
                         'notes':self.feeding_at_D_C},
                         {'observable':'bay_observable_transferredCare',
                         'value':self.toc,
                         'notes':None},
-                        {'observable':'bay_observable_deliveryDate',
+                        {'observable':'bay_observable_dateOfBirth',
                         'value':self.date_of_birth,
                         'notes':None},
                         {'observable':'bay_observable_deliveryPatternAtBirth',
@@ -459,72 +571,25 @@ class Baby(Person):
                         'value':self.birth_place,
                         'notes':None}],
                 'account':None,
-                'notes':None,
-                
-        }
+                'notes':None}
+        if self.delivery_type == 'Premature':
+            record_dict['episode']['observations'].insert(5,{'observable':'bay_observable_pretermBirth',
+                                'value':self.delivery_type,
+                                'notes':None})
+            # also to delete the bay_observable_deliveryPatternAtBirth
+            record_dict['episode']['observations'].pop(4)
 
         record_dict['notes'] = self.create_dict_for_all_information()
-
-        # update the caremanager, primary midwife and secondary midwife
-        caremanager = self.mw_billing.split(' ') if pd.isnull(self.mw_billing) == False else None
-        primary_midwife = self.mw_primary.split(' ') if pd.isnull(self.mw_primary) == False else None
-        secondary_midwife = self.mw_secondary.split(' ') if pd.isnull(self.mw_secondary) == False else None
-        mw_2nd_fee = self.mw_2nd_fee.split(' ') if pd.isnull(self.mw_2nd_fee) == False else None
-        mw_coordinating = self.mw_coordinating.split(' ') if pd.isnull(self.mw_coordinating) == False else None
-        mw_other2 = self.mw_other2.split(' ') if pd.isnull(self.mw_other2) == False else None
-
-        # update the caremanager, primary midwife and secondary midwife, 2nd fee, mw coordinating, other2.
-        self.update_caremanager(record_dict, caremanager, primary_midwife, secondary_midwife, mw_2nd_fee, mw_coordinating, mw_other2)
-
-        del caremanager, primary_midwife, secondary_midwife, mw_2nd_fee, mw_coordinating, mw_other2
-
-        # send episode to the mother instance
-        # update the episode observation for mother and delete the baby observation
-
-        temp_list = [
-        {'observable':'bay_observable_gravida',
-                        'value':self.gravida,
-                        'notes':None},
-                        {'observable':'bay_observable_para',
-                        'value':self.para,
-                        'notes':None},
-                        {'observable':'bay_observable_edd',
-                        'value':self.edd,
-                        'notes':None},
-                        {'observable':'bay_observable_transferredCare',
-                        'value':self.toc,
-                        'notes':None},
-                        {'observable':'bay_observable_deliveryDate',
-                        'value':self.date_of_birth,
-                        'notes':None},
-                        {'observable':'bay_observable_deliveryPatternAll',
-                        'value':self.delivery_type,
-                        'notes':None}
-        ] # need to understand the stillbirth and premature
-        # replace the episode observations with the temp_list
         
-        # make a hard copy of the record_dict
-        account_dict = {'account':
-                {
-                        'billable':self.billable,
-                        'notBillingReason':None,
-                        'billingDate':self.billing_date,
-                        'notes':None,
-                }
-                }
-        note_dict = {'notes':self.parse_notes_remove_html()}
-        record_dict_copy = copy.deepcopy(record_dict)
-        record_dict_copy['episode']['observations'] = temp_list
-        record_dict_copy['episode']['account'] = account_dict['account']
-        record_dict_copy['episode']['notes'] = note_dict['notes']
-        del temp_list, account_dict, note_dict
+        self.update_baby_care_team_participants(record_dict)#, mw_2nd_fee, mw_coordinating, mw_other2)
 
-        self.mother.episode.append(record_dict_copy['episode'])
-        del record_dict_copy
 
-        return record_dict
+    def update_baby_care_team_participants(self,record_dict):# ,mw_2nd_fee,mw_coordinating,mw_other2):
+                # update the caremanager, primary midwife and secondary midwife
+        caremanager = self.mw_primary.split(' ') if pd.isnull(self.mw_primary) == False else None
+        primary_midwife = caremanager
+        secondary_midwife = self.mw_secondary.split(' ') if pd.isnull(self.mw_secondary) == False else None
 
-    def update_caremanager(self,record_dict,caremanager,primary_midwife,secondary_midwife,mw_2nd_fee,mw_coordinating,mw_other2):
         try:
        
             record_dict['episode']['careManager']['firstName'] = caremanager[0]
@@ -541,22 +606,55 @@ class Baby(Person):
             record_dict['episode']['careTeamParticipants'][1]['lastName'] = secondary_midwife[1]
         except:
                 pass
+
+
+    def update_mother_care_team_participants(self,mother_episode):
+        # update the caremanager, primary midwife and secondary midwife
+        caremanager = self.mw_billing.split(' ') if pd.isnull(self.mw_billing) == False else None
+        primary_midwife = self.mw_primary.split(' ') if pd.isnull(self.mw_primary) == False else None
+        secondary_midwife = self.mw_secondary.split(' ') if pd.isnull(self.mw_secondary) == False else None
+        mw_2nd_fee = self.mw_2nd_fee.split(' ') if pd.isnull(self.mw_2nd_fee) == False else None
+        mw_coordinating = self.mw_coordinating.split(' ') if pd.isnull(self.mw_coordinating) == False else None
+        mw_other2 = self.mw_other2.split(' ') if pd.isnull(self.mw_other2) == False else None
+
+
         try:
-                record_dict['episode']['careTeamParticipants'][2]['firstName'] = mw_2nd_fee[0]
-                record_dict['episode']['careTeamParticipants'][2]['lastName'] = mw_2nd_fee[1]
+            mother_episode['episode']['careManager']['firstName'] = caremanager[0]
+            mother_episode['episode']['careManager']['lastName'] = caremanager[1]
         except:
                 pass
+
         try:
-                record_dict['episode']['careTeamParticipants'][3]['firstName'] = mw_coordinating[0]
-                record_dict['episode']['careTeamParticipants'][3]['lastName'] = mw_coordinating[1]
+            mother_episode['episode']['careTeamParticipants'][0]['firstName'] = primary_midwife[0]
+            mother_episode['episode']['careTeamParticipants'][0]['lastName'] = primary_midwife[1]
         except:
                 pass
+
         try:
-                record_dict['episode']['careTeamParticipants'][4]['firstName'] = mw_other2[0]
-                record_dict['episode']['careTeamParticipants'][4]['lastName'] = mw_other2[1]
+            mother_episode['episode']['careTeamParticipants'][1]['firstName'] = secondary_midwife[0]
+            mother_episode['episode']['careTeamParticipants'][1]['lastName'] = secondary_midwife[1]
+        except:
+                pass
+
+        try:
+                mother_episode['episode']['careTeamParticipants'][2]['firstName'] = mw_2nd_fee[0]
+                mother_episode['episode']['careTeamParticipants'][2]['lastName'] = mw_2nd_fee[1]
+        except:
+                pass
+
+        try:
+                mother_episode['episode']['careTeamParticipants'][3]['firstName'] = mw_coordinating[0]
+                mother_episode['episode']['careTeamParticipants'][3]['lastName'] = mw_coordinating[1]
+        except:
+                pass
+
+        try:
+                mother_episode['episode']['careTeamParticipants'][4]['firstName'] = mw_other2[0]
+                mother_episode['episode']['careTeamParticipants'][4]['lastName'] = mw_other2[1]
         except:
                 pass
         
+        del caremanager, primary_midwife, secondary_midwife, mw_2nd_fee, mw_coordinating, mw_other2
 
 
 
