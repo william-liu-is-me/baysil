@@ -307,22 +307,7 @@ class Baby(Person):
                 return self.notes
         else:
                 return None
-    def parse_feeding_method(self,parse_value):
-        try:
-                parse_value.lower()
-                if parse_value == 'breast':
-                        return 'bay_feedingMethod_breast'
-                elif parse_value == 'formula':
-                        return 'bay_feedingMethod_formula'
-                elif parse_value == 'breast and formula':
-                        return 'bay_feedingMethod_combination'
-        
-                else:
-                        pass
-                # pending for future development
 
-        except:
-                pass
     def gender_mapping_for_baby(self):
             if self.gender == 'F':
                 gender = 'bay_gender_famale'
@@ -389,16 +374,30 @@ class Baby(Person):
         self.city = self.mother.city
         self.province = self.mother.province
         self.postal_code = self.mother.postal_code
+        if self.address == None:
+
+                text = None
+                province = self.province
+        else:
+                # convert ON/Ont to Ontario
+                if self.province == 'Ont' or self.province == 'ON':
+                        province = 'Ontario'
+                else:
+                        province = self.province
+
+                text = str(self.address or '') + ', ' + str(self.city or '') + ', ' + str(self.province or '') + ' ' + str(self.postal_code or '') + ' Canada'
+
+        
 
         # question, if data missing, cannot perfrom string concatenation, how to handle this?
         record_dict['locations'] = [
                 {'name':'Home address',
                 'address':{
-                        'text': str(self.address or '') + ', ' + str(self.city or '') + ', ' + str(self.province or '') + ' ' + str(self.postal_code or '') + ' Canada',
+                        'text': text,
                         'streetAddress':self.address,
                         'postalCode':self.postal_code,
                         'city':self.city,
-                        'region':self.province,
+                        'region':province,
                         'country':'Canada'
                 }}
         ]
@@ -415,10 +414,6 @@ class Baby(Person):
                 'relationship':'bay_relationshipType_mother'}
         ]
 
-        # mw_billing
-        
-        # build the observation outside of the episode, one copy for baby and one copy for mother
-        
         self.build_baby_episode(record_dict)
        
         mother_episode = self.build_mother_episode()
@@ -428,14 +423,36 @@ class Baby(Person):
 
         return record_dict
 
-    def parse_feeding_method(self):
+    def parse_feeding_method(self,feeding_method):
 
         # parse the feeding method is very complicated
 
-        return 'pending for mapping'
+        # 1. check if the feeding method is empty
+        if feeding_method == None:
+                # assume none / unknown
+                return None
+        else:   
+                
+                # 2. lower case string, split by comma, space, and slash, & sign, + sign
+                feeding_method = feeding_method.lower()
+                feeding_method = feeding_method.replace(',',' ')
+                feeding_method = feeding_method.replace('/',' ')
+                feeding_method = feeding_method.replace('&',' ')
+                feeding_method = feeding_method.replace('+',' ')
+                feeding_method = feeding_method.split(' ')
 
+                # 3 options, only breast, only formula, or both
+                # 3.1 only breast 
+                # # question: what is ebm?
+                if 'breast' in feeding_method and 'formula' not in feeding_method:
+                        return 'bay_feedingMethod_breast'
+                elif 'formula' in feeding_method and 'breast' not in feeding_method:
+                        return 'bay_feedingMethod_formula'
+                elif 'formula' in feeding_method and 'breast' in feeding_method:
+                        return 'bay_feedingMethod_combination'
+                else:
+                        return None
 
-        pass
 
     def build_mother_episode(self):
         mother_episode = {
@@ -549,10 +566,10 @@ class Baby(Person):
                 # baby and mother has different obersevations
                 'observations':[
                         {'observable':'bay_observable_feedingAtBirth',
-                        'value':self.parse_feeding_method(),
+                        'value':self.parse_feeding_method(self.feeding_at_birth),
                         'notes':self.feeding_at_birth},
                         {'observable':'bay_observable_feedingAtDischarge',
-                        'value':self.parse_feeding_method(),
+                        'value':self.parse_feeding_method(self.feeding_at_D_C),
                         'notes':self.feeding_at_D_C},
                         {'observable':'bay_observable_transferredCare',
                         'value':self.toc,
