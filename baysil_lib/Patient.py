@@ -419,8 +419,8 @@ class Baby(Person):
         # build the observation outside of the episode, one copy for baby and one copy for mother
         
         self.build_baby_episode(record_dict)
-        mother_episode = {}
-        mother_episode = self.build_mother_episode(mother_episode)
+       
+        mother_episode = self.build_mother_episode()
         self.mother.episode.append(mother_episode)
 
         record_dict['notes'] = self.create_dict_for_all_information()
@@ -436,8 +436,8 @@ class Baby(Person):
 
         pass
 
-    def build_mother_episode(self,mother_episode):
-        mother_episode['episode'] = {
+    def build_mother_episode(self):
+        mother_episode = {
         'start': self.initial_date,
         'end': self.d_c,
         'identifications':{
@@ -512,9 +512,9 @@ class Baby(Person):
         }
 
         # update the caremanager, primary midwife and secondary midwife, 2nd fee, mw coordinating, other2.
-        self.update_mother_care_team_participants(mother_episode)
+        final_mother_episode = self.update_mother_care_team_participants(mother_episode)
         
-        return mother_episode
+        return final_mother_episode
 
 
     def build_baby_episode(self,record_dict):
@@ -604,6 +604,7 @@ class Baby(Person):
 
     def update_mother_care_team_participants(self,mother_episode):
         # update the caremanager, primary midwife and secondary midwife
+
         caremanager = self.mw_billing.split(' ') if pd.isnull(self.mw_billing) == False else None
         primary_midwife = self.mw_primary.split(' ') if pd.isnull(self.mw_primary) == False else None
         secondary_midwife = self.mw_secondary.split(' ') if pd.isnull(self.mw_secondary) == False else None
@@ -613,43 +614,44 @@ class Baby(Person):
 
 
         try:
-            mother_episode['episode']['careManager']['firstName'] = caremanager[0]
-            mother_episode['episode']['careManager']['lastName'] = caremanager[1]
+            mother_episode['careManager']['firstName'] = caremanager[0]
+            mother_episode['careManager']['lastName'] = caremanager[1]
         except:
                 pass
 
         try:
-            mother_episode['episode']['careTeamParticipants'][0]['firstName'] = primary_midwife[0]
-            mother_episode['episode']['careTeamParticipants'][0]['lastName'] = primary_midwife[1]
+            mother_episode['careTeamParticipants'][0]['firstName'] = primary_midwife[0]
+            mother_episode['careTeamParticipants'][0]['lastName'] = primary_midwife[1]
         except:
                 pass
 
         try:
-            mother_episode['episode']['careTeamParticipants'][1]['firstName'] = secondary_midwife[0]
-            mother_episode['episode']['careTeamParticipants'][1]['lastName'] = secondary_midwife[1]
+            mother_episode['careTeamParticipants'][1]['firstName'] = secondary_midwife[0]
+            mother_episode['careTeamParticipants'][1]['lastName'] = secondary_midwife[1]
         except:
                 pass
 
         try:
-                mother_episode['episode']['careTeamParticipants'][2]['firstName'] = mw_2nd_fee[0]
-                mother_episode['episode']['careTeamParticipants'][2]['lastName'] = mw_2nd_fee[1]
+                mother_episode['careTeamParticipants'][2]['firstName'] = mw_2nd_fee[0]
+                mother_episode['careTeamParticipants'][2]['lastName'] = mw_2nd_fee[1]
         except:
                 pass
 
         try:
-                mother_episode['episode']['careTeamParticipants'][3]['firstName'] = mw_coordinating[0]
-                mother_episode['episode']['careTeamParticipants'][3]['lastName'] = mw_coordinating[1]
+                mother_episode['careTeamParticipants'][3]['firstName'] = mw_coordinating[0]
+                mother_episode['careTeamParticipants'][3]['lastName'] = mw_coordinating[1]
         except:
                 pass
 
         try:
-                mother_episode['episode']['careTeamParticipants'][4]['firstName'] = mw_other2[0]
-                mother_episode['episode']['careTeamParticipants'][4]['lastName'] = mw_other2[1]
+                mother_episode['careTeamParticipants'][4]['firstName'] = mw_other2[0]
+                mother_episode['careTeamParticipants'][4]['lastName'] = mw_other2[1]
         except:
                 pass
         
         del caremanager, primary_midwife, secondary_midwife, mw_2nd_fee, mw_coordinating, mw_other2
 
+        return mother_episode
 
 
     def parse_special_population_description(self,PopulationGroupJson):
