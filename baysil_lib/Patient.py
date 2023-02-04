@@ -129,7 +129,7 @@ class Mother(Person):
 
         # parse ohip number, if not valid, return None 
         identifier = self.parse_mother_ohip_number()
-        
+
         # as per 1.30 meeting, mother CoC ID is not required
         mother_record['identifications'] = [
                 {'system':'bay_idSystem_ohip',
@@ -425,6 +425,7 @@ class Baby(Person):
 
         record_dict['notes'] = self.create_dict_for_all_information()
 
+        return record_dict
 
     def parse_feeding_method(self):
 

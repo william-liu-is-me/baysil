@@ -135,11 +135,6 @@ def main():
             df = pd.DataFrame({'coc_id':check_list_cocid,'baby_first_name':baby_first_name,'baby_last_name':baby_last_name,'mother_name':mother_name})
             df.to_csv('check_list/baby without mother.csv')
             del df
-    # check memory usage
-    # process = psutil.Process()
-    # print(process.memory_info().rss / 1024 ** 2,'MB')
-    # print(n,'babies cannot find mother. creating checklist for data review later.')
-    # print(m,'babies find their mother.')
 
     # open json file
     with open('json/special_population_mapping.json') as f:
