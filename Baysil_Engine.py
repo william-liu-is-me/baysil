@@ -57,7 +57,6 @@ def main():
     data = data.replace(np.nan,None)
 
 
-
     # use baby coc_id to match the row in data 
 
     for baby in baby_list:
