@@ -136,7 +136,7 @@ class Mother(Person):
         if self.middle_name:
             mother_record['preferredName'] = self.first_name + ' ' + self.middle_name + ' ' + self.last_name
         else:
-            mother_record['preferredName'] = self.first_name + ' ' + self.last_name
+            mother_record['preferredName'] = str(self.first_name or '') + ' ' + str(self.last_name or '')
         
         mother_record['gender'] = 'bay_gender_female'
         mother_record['dateOfBirth'] = self.date_of_birth
@@ -255,7 +255,10 @@ class Mother(Person):
         del firstname,middle_name,lastname,split_name
 
         # mother episode is created by each baby episode and attend to mother.episode
-        mother_record['episode'] = self.episode
+        if len(self.episode) > 0:
+            mother_record['episode'] = self.episode
+        else:
+            mother_record['episode'] = 'pending for future update'
 
         # need to update account and notes for mother episode
 
@@ -263,6 +266,8 @@ class Mother(Person):
 
         return mother_record
 
+
+        
 
 
 

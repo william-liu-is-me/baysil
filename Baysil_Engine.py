@@ -58,7 +58,7 @@ def main():
 
 
     # use baby coc_id to match the row in data 
-
+    match_list = []
     for baby in baby_list:
         # find the row in data that has the same coc_id as the baby
         row = data.loc[data['CoC ID'] == baby.coc_id]
@@ -92,10 +92,52 @@ def main():
         baby.chart_scan_date = row['Chart Scan Date']
         baby.chart_shred_date = row['Chart Shred Date']
 
+        # add coc id to the match list
+        match_list.append(baby.coc_id)
+    
+    # remove the matched coc_id from the data
+    data = data[~data['CoC ID'].isin(match_list)]
+    
+    #build dummy baby instance from data and add them to baby_list
+    for index, row in data.iterrows():
+        baby = Baby()
 
-# at this moment, baby instance has all information 
-# from the birth log, blue heron baby and the course of care list
-# mother instance has all information from the client list
+        baby.coc_id = row['CoC ID']
+        baby.mother_name = row['Client Name']
+        # baby carry all the information from the row of this Course of Care
+        baby.special_population = row['Special Population']
+        baby.special_population_description = row['Special Population Description']
+        baby.gravida = row['Gravida']
+        baby.para = row['Para']
+        baby.edd = row['EDD']
+        baby.initial_date = row['Initial Date']
+        baby.d_c = row['D/C']
+        baby.billing_date =  row['Billing Date']
+        baby.billable = row['Billable']
+        baby.mw_billing = row['MW-billing']
+        baby.mw_other = row['MW-other']
+        baby.mw_other2 = row['MW-other2']
+        baby.mw_coordinating = row['MW-coordinating']
+        baby.mw_2nd_fee = row['MW-2nd fee']
+        baby.ipca = row['IPCA']
+        baby.ipca_comment = row['IPCA Comment']
+        baby.notes = row['Notes']
+        baby.special_instructions = row['Special Instructions']
+        baby.chart_scan_date = row['Chart Scan Date']
+        baby.chart_shred_date = row['Chart Shred Date']
+
+
+        baby_list.append(baby)
+
+    tmp_data = pd.read_csv('cleaned_data/Blue Heron Babies and Birth Log.csv')
+    tmp_data = tmp_data.replace(np.nan,None)
+    tmp_data = tmp_data[~tmp_data['CoC ID'].isin(match_list)]
+
+    # remaining data is the data that has no coc_id match
+    data.to_csv('check_list/remaining data.csv',index=False)
+    tmp_data.to_csv('check_list/remaining baby data.csv',index=False)
+    
+    del data, tmp_data
 
     # create a family dictionary with mother
 
@@ -112,6 +154,7 @@ def main():
     baby_first_name = []
     baby_last_name = []
     mother_name = []
+
     for baby in baby_list:
         # add baby into the mother instance to make a family
         try:
@@ -128,10 +171,14 @@ def main():
             mother_name.append(baby.mother_name)
 
             n += 1
-            # make the check list as df
-            df = pd.DataFrame({'coc_id':check_list_cocid,'baby_first_name':baby_first_name,'baby_last_name':baby_last_name,'mother_name':mother_name})
-            df.to_csv('check_list/baby without mother.csv')
-            del df
+        
+    # make the check list as df
+    df = pd.DataFrame({'coc_id':check_list_cocid,'baby_first_name':baby_first_name,'baby_last_name':baby_last_name,'mother_name':mother_name})
+    df.to_csv('check_list/baby without mother.csv',index=False)
+    del df
+
+    print('number of baby without mother:',n)
+    print('number of baby with mother:',m)
 
     # open json file
     with open('json/special_population_mapping.json') as f:
@@ -151,16 +198,20 @@ def main():
     for mother in mother_list:
         family_list = []
         count += 1
-        print(count)
+        #print(count)
         # create baby record
         
-        if count == 5:
+        if count == 15:
             break
 
         for child in mother.children:
+
             baby_record = child.build_baby_record(mother,special_population_map)
-            family_list.append(baby_record)
-            # mother can have many coc-id
+            
+            # add baby record to the family list only for real baby with toc
+            if child.toc != None:
+                family_list.append(baby_record)
+
             mother.coc_id.append(child.coc_id)
 
         # create mother record
