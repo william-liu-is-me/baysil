@@ -86,20 +86,23 @@ class Mother(Person):
                 ohip_number = self.ohip_number.replace(' ','')
 
                 # this is ohip number 
-                if ohip_number[:-2].isdigit() and len(ohip_number) == 10:
+                if ohip_number[:-2].isdigit() and len(ohip_number[:-2]) == 10:
                         number = ohip_number[:-2]
                         return "baysil_idSystem_ohipOntario",str(number)
                 else:
                 # this is not ohip number, need to use the letter to determine the insurance type
-                    string_list = re.findall(r'\d+|\D+', ohip_number)   
-                    for i in string_list:
-                        try:
-                            insurance_type = clientinsurancetype[i]
-                            insurance_number_number = ohip_number.replace(i,'')
+                    
+                    # split the string by space
+                    string_list = self.ohip_number.split(' ')
+                    
+                
+                    try:
+                        insurance_type = clientinsurancetype[string_list[0].upper()]
+                        insurance_number_number = string_list[1]
 
-                            return insurance_type,insurance_number_number
-                        except:
-                            return None,None
+                        return insurance_type,insurance_number_number
+                    except:
+                        return None,None
                     # return the insurance type and the number in the ohip_number
                         
 
@@ -156,10 +159,6 @@ class Mother(Person):
         mother_record['identifications'] = [
                 {'system':insurance_type,
                 'identifier':identifier}
-                # 'identifierVersion':ohip_version}
-                # {'system':'bay_idSystem_internal',
-                # 'name':'CoC ID',
-                # 'identifier':str(self.coc_id)}
         ]
 
 

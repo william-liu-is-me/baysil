@@ -206,7 +206,8 @@ def main():
         #print(count)
         # create baby record
         
-
+        if count == 50:
+            break
 
         for child in mother.children:
 
@@ -238,8 +239,8 @@ def main():
 
         # make this family list into a json file
 
-        # with open(f'sample/{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:
-        #     json.dump(family_list, outfile)
+        with open(f'sample/{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:
+            json.dump(family_list, outfile)
 
     df = pd.DataFrame({'mother_name':temp_list_1,'mother_cod_id':temp_list_3,'number_of_children':temp_list_2})
     df.to_csv('check_list/number of baby for each mother.csv',index=False)
