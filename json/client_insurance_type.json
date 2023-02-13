@@ -1,0 +1,13 @@
+{
+    
+    "COWAN":"baysil_idSystem_cowanPolicyNum",
+    "UHIP":"baysil_idSystem_uwaterlooUhip",
+    "IFHP":"baysil_idSystem_ifhp",
+    "BC": "baysil_idSystem_phnBritishColumbia",
+    "PRIVATE":"baysil_idSystem_private",
+    "SUNLIFE":"baysil_idSystem_sunlifePolicyNum",
+    "BLUECROSS":"baysil_idSystem_blueCrossPolicyNum",
+    "MANITOBA":"baysil_idSystem_phinManitoba",
+    "ALBERTA":"baysil_idSystem_ahcipAlberta"
+
+}

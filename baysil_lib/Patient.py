@@ -77,34 +77,31 @@ class Mother(Person):
         return {'Imported date': None,'original data':mother_original_data_dictionary}
 
 
-    def parse_mother_ohip_number(self):
+    def parse_mother_ohip_number(self,clientinsurancetype):
 
         if self.ohip_number == None:
-                return None
+                return None,None
                 #remove space in the string
         else:
                 ohip_number = self.ohip_number.replace(' ','')
-                try:
-                #check if the last two characters are letters and first 10 characters are digits
-                        if ohip_number[:-2].isdigit() and ohip_number[-2:].isalpha():
-                                version = ohip_number[-2:]
-                                number = ohip_number[:-2]
-                                return str(number) # +'-'+str(version)
-                                # number = number[:4] + ' ' + number[4:7] + ' ' + number[7:]
-                        elif ohip_number[:-2].isdigit() and not ohip_number[-2:].isalpha():
-                                version = None
-                                number = ohip_number
-                                return str(number)
-                                # add one space after 4 digits and another space after 7 digits
-                                # number = number[:4] + ' ' + number[4:7] + ' ' + number[7:]
-                        else:
-                                return None
 
-                except:
-                        return None
+                # this is ohip number 
+                if ohip_number[:-2].isdigit() and len(ohip_number) == 10:
+                        number = ohip_number[:-2]
+                        return "baysil_idSystem_ohipOntario",str(number)
+                else:
+                # this is not ohip number, need to use the letter to determine the insurance type
+                    string_list = re.findall(r'\d+|\D+', ohip_number)   
+                    for i in string_list:
+                        try:
+                            insurance_type = clientinsurancetype[i]
+                            insurance_number_number = ohip_number.replace(i,'')
 
-
-
+                            return insurance_type,insurance_number_number
+                        except:
+                            return None,None
+                    # return the insurance type and the number in the ohip_number
+                        
 
     def parse_contact_preference(self,preferred_contact_method_json):
         parse_result = []
@@ -126,7 +123,7 @@ class Mother(Person):
         return parse_result
 
 
-    def build_mother_record(self,preferredcontactmethod):
+    def build_mother_record(self,preferredcontactmethod,clientinsurancetype):
         mother_record = {}
         mother_record['firstName'] = self.first_name
         mother_record['middleName'] = self.middle_name
@@ -153,11 +150,11 @@ class Mother(Person):
                 mother_record['populationGroups'] = None
 
         # parse ohip number, if not valid, return None 
-        identifier = self.parse_mother_ohip_number()
+        insurance_type,identifier = self.parse_mother_ohip_number(clientinsurancetype)
 
         # as per 1.30 meeting, mother CoC ID is not required
         mother_record['identifications'] = [
-                {'system':'bay_idSystem_ohip',
+                {'system':insurance_type,
                 'identifier':identifier}
                 # 'identifierVersion':ohip_version}
                 # {'system':'bay_idSystem_internal',
@@ -304,7 +301,12 @@ class Baby(Person):
     def create_baby_dict_for_all_information(self):
         # create a baby dictionary for all original information
         baby_dict = {}
-        baby_dict['coc id'] = self.coc_id
+        # coc id is 5 digit number, need to add 0s in front
+        if self.coc_id:
+                coc_id = str(self.coc_id).zfill(5)
+        else:
+                coc_id = self.coc_id
+        baby_dict['coc id'] = coc_id
         baby_dict['first name'] = self.first_name
         baby_dict['last name'] = self.last_name
         baby_dict['baby gender'] = self.gender 
@@ -358,7 +360,7 @@ class Baby(Person):
                         if self.baby_ohc[:-2].isdigit() and self.baby_ohc[-2:].isalpha():
                                 version = self.baby_ohc[-2:]
                                 number = self.baby_ohc[:-2]
-                                return str(number)+'-'+str(version)
+                                return str(number)+' '+str(version)
                         elif self.baby_ohc[:-2].isdigit() and not self.baby_ohc[-2:].isalpha():
                                 version = None
                                 number = self.baby_ohc
@@ -476,11 +478,17 @@ class Baby(Person):
                         'country':'Canada'
                 }}
         ]
+        
 
+        # coc_id is 5 digits, if it is less than 5 digits, add 0 in front of it
+        if self.coc_id:
+                coc_id = str(self.coc_id).zfill(5)
+        else:
+                coc_id = self.coc_id
         record_dict['relatives'] = [
                 {'identifiedInSystem':'bay_idSystem_internal',
                 'idSystemName':'CoC ID',
-                'identifiedAs':str(self.coc_id),
+                'identifiedAs':str(coc_id),
                 # as per requirements
                 'firstName':None,#self.mother.first_name,
                 'middleName':None,#self.mother.middle_name,
@@ -530,13 +538,19 @@ class Baby(Person):
 
 
     def build_mother_episode(self):
+        # cocid is 5 digits, if it is less than 5 digits, add 0 in front of it
+        if self.coc_id:
+                coc_id = str(self.coc_id).zfill(5)
+        else:
+                coc_id = self.coc_id
+
         mother_episode = {
         'start': self.initial_date,
         'end': self.d_c,
         'identifications':{
                 'system':'bay_idSystem_internal',
                 'name':'CoC ID',
-                'identifier':str(self.coc_id or '')
+                'identifier':str(coc_id or '')
         },
         'careManager': {
                 'firstName':None,
@@ -611,14 +625,18 @@ class Baby(Person):
 
 
     def build_baby_episode(self,record_dict):
-
+        # cocid is 5 digits, if it is less than 5 digits, add 0 in front of it
+        if self.coc_id:
+                coc_id = str(self.coc_id).zfill(5)
+        else:
+                coc_id = self.coc_id
         record_dict['episode'] = {
                 'start': self.date_of_birth,
                 'end': self.d_c,
                 'identifications':{
                         'system':'bay_idSystem_internal',
                         'name':'CoC ID',
-                        'identifier':str(self.coc_id or '')+'-B'
+                        'identifier':str(coc_id or '')+'B'
                 },
                 'careManager': {
                         'firstName':None,

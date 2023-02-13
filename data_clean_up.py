@@ -30,6 +30,11 @@ def clean_up_client_list():
     data['May Contact'] = data['May Contact'].str.replace(r'1', 'True',True)
     data['May Contact'] = data['May Contact'].str.replace(r'0', 'False',True)
 
+    # clean up the OHIP Number column
+    data['OHIP Number'] = data['OHIP Number'].astype(str)
+    data['OHIP Number'] = data['OHIP Number'].replace('-', ' ', regex=True)
+
+
     data.to_csv('cleaned_data/Client List.csv',index=False)
 
     del data
@@ -127,7 +132,7 @@ def clean_up_Courses_of_Care():
 
 
 if __name__ == "__main__":
-    # clean_up_client_list()
-    # clean_up_Blue_Heron_Babies_and_Birth_Log()
-    # clean_up_Courses_of_Care()
+    clean_up_client_list()
+    clean_up_Blue_Heron_Babies_and_Birth_Log()
+    clean_up_Courses_of_Care()
     pass

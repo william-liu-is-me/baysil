@@ -171,6 +171,8 @@ def main():
             mother_name.append(baby.mother_name)
 
             n += 1
+            # someone only exist in course of care, not in client list nor birth log
+            
         
     # make the check list as df
     df = pd.DataFrame({'coc_id':check_list_cocid,'baby_first_name':baby_first_name,'baby_last_name':baby_last_name,'mother_name':mother_name})
@@ -188,6 +190,9 @@ def main():
     with open('json/preferredcontactmethod.json') as f:
         preferredcontactmethod = json.load(f)
 
+    with open('json/client_insurance_type.json') as f:
+        client_insurance_type = json.load(f)
+
     # family dictionary is created
     count = 0
     
@@ -201,8 +206,7 @@ def main():
         #print(count)
         # create baby record
         
-        if count == 15:
-            break
+
 
         for child in mother.children:
 
@@ -215,7 +219,7 @@ def main():
             mother.coc_id.append(child.coc_id)
 
         # create mother record
-        mother_record = mother.build_mother_record(preferredcontactmethod)
+        mother_record = mother.build_mother_record(preferredcontactmethod,client_insurance_type)
 
         family_list.insert(0,mother_record)
 
@@ -234,8 +238,8 @@ def main():
 
         # make this family list into a json file
 
-        with open(f'sample/{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:
-            json.dump(family_list, outfile)
+        # with open(f'sample/{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:
+        #     json.dump(family_list, outfile)
 
     df = pd.DataFrame({'mother_name':temp_list_1,'mother_cod_id':temp_list_3,'number_of_children':temp_list_2})
     df.to_csv('check_list/number of baby for each mother.csv',index=False)
