@@ -507,6 +507,8 @@ class Baby(Person):
 
         record_dict['notes'] = self.create_baby_dict_for_all_information()
 
+        self.record = record_dict
+
         return record_dict
 
     def parse_feeding_method(self,feeding_method,feeding_json):
@@ -533,8 +535,10 @@ class Baby(Person):
                                 temp.append(feeding_json[i])
                         except:
                                 pass
-                
-                return temp
+                if len(temp) == 0:
+                        return 'baysil_feedingMethod_unknown'
+                else:
+                        return temp
 
 
     def build_mother_episode(self):
@@ -630,13 +634,18 @@ class Baby(Person):
                 coc_id = str(self.coc_id).zfill(5)
         else:
                 coc_id = self.coc_id
+
+        sequence_number = ''
+        
+        # if there are twins, the sequence number is A and B and etc.
+
         record_dict['episode'] = {
                 'start': self.date_of_birth,
                 'end': self.d_c,
                 'identifications':{
                         'system':'baysil_idSystem_internal',
                         'name':'CoC ID',
-                        'identifier':str(coc_id or '')+'B'
+                        'identifier':str(coc_id or '')+'B' + sequence_number
                 },
                 'careManager': {
                         'firstName':None,

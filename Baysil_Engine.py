@@ -2,7 +2,7 @@ import pandas as pd
 import json
 import numpy as np
 from baysil_lib.Patient import *
-
+import collections
 
 def main():
     # data read and clean up for client list
@@ -203,6 +203,8 @@ def main():
     temp_list_2 = []
     temp_list_3 = []
 
+    multiple_baby_list = []
+    
     for mother in mother_list:
         family_list = []
         count += 1
@@ -234,16 +236,24 @@ def main():
         temp_list_1.append(name_of_mother)
         temp_list_2.append(no_of_children)
         temp_list_3.append(mother.coc_id)
-    
-    # make a df with mother name and number of children
 
+        # update the baby coc_id if this is a twin in multiple_baby_list
+        if no_of_children > 1 and len(mother.coc_id) != len(set(mother.coc_id)):
+            twin_coc_id = [item for item, count in collections.Counter(mother.coc_id).items() if count > 1]
+            n = 0
+            for child in mother.children:
+                # update twin babies's coc_id with a sequence number of A and B ...
+                if child.coc_id in twin_coc_id:
+                    sequence_number = chr(twin_coc_id.index(child.coc_id) + 65 + n)
+                    child.record['episode']['identifications']['identifier'] = child.record['episode']['identifications']['identifier'] + sequence_number
+                    print(child.record['episode']['identifications']['identifier'])
+                    n += 1
 
         # make this family list into a json file
 
-        # make this family list into a json file
-
-        with open(f'sample/{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:
+        with open(f'sample/{mother.coc_id}_{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:
             json.dump(family_list, outfile)
+
 
     df = pd.DataFrame({'mother_name':temp_list_1,'mother_cod_id':temp_list_3,'number_of_children':temp_list_2})
     df.to_csv('check_list/number of baby for each mother.csv',index=False)
