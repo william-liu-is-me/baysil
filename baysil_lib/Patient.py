@@ -89,6 +89,10 @@ class Mother(Person):
                 if ohip_number[:-2].isdigit() and len(ohip_number[:-2]) == 10:
                         number = ohip_number[:-2]
                         return "baysil_idSystem_ohipOntario",str(number)
+
+                elif ohip_number.isdigit() and len(ohip_number) == 10:
+                        return "baysil_idSystem_ohipOntario",str(ohip_number)
+
                 else:
                 # this is not ohip number, need to use the letter to determine the insurance type
                     
@@ -138,7 +142,7 @@ class Mother(Person):
         else:
             mother_record['preferredName'] = str(self.first_name or '') + ' ' + str(self.last_name or '')
         
-        mother_record['gender'] = 'bay_gender_female'
+        mother_record['gender'] = 'baysil_gender_female'
         mother_record['dateOfBirth'] = self.date_of_birth
         # question: if many children, which speical population description should be used?
         # now let's use all
@@ -163,20 +167,20 @@ class Mother(Person):
 
 
         mother_record['contactInformation'] = [
-                {'system':'bay_contactSystem_email',
+                {'system':'baysil_contactSystem_email',
                 'value':self.email},
-                {'system':'bay_contactSystem_phone',
+                {'system':'baysil_contactSystem_phone',
                 'value':self.mobile_phone,
-                'systemType':'bay_contactUse_mobile',
-                'use':'bay_contactUse_personal'},
-                {'system':'bay_contactSystem_phone',
+                'systemType':'baysil_contactUse_mobile',
+                'use':'baysil_contactUse_personal'},
+                {'system':'baysil_contactSystem_phone',
                 'value':self.home_phone,
-                'systemType':'bay_contactUse_landline',
-                'use':'bay_contactUse_home'},
-                {'system':'bay_contactSystem_phone',
+                'systemType':'baysil_contactUse_landline',
+                'use':'baysil_contactUse_home'},
+                {'system':'baysil_contactSystem_phone',
                 'value':self.work_phone_with_extension,
-                'systemType':'bay_contactUse_landline',
-                'use':'bay_contactUse_business'}
+                'systemType':'baysil_contactUse_landline',
+                'use':'baysil_contactUse_business'}
         ]
         a,b,c = self.parse_contact_preference(preferredcontactmethod)
 
@@ -245,7 +249,7 @@ class Mother(Person):
                         'middleName': middle_name,
                         'lastName': lastname,
                         'preferredName': self.partner_name,
-                        'relationship':'bay_relationshipType_domesticPartner'
+                        'relationship':'baysil_relationshipType_domesticPartner'
                 }
         ]
         del firstname,middle_name,lastname,split_name
@@ -386,15 +390,15 @@ class Baby(Person):
 
     def gender_mapping_for_baby(self):
             if self.gender == 'F':
-                gender = 'bay_gender_famale'
+                gender = 'baysil_gender_famale'
             elif self.gender == 'M':
-                gender = 'bay_gender_male'
+                gender = 'baysil_gender_male'
             else:
                 gender = self.gender
         
             return gender 
 
-    def build_baby_record(self,mother_instance,PopulationGroupJson):
+    def build_baby_record(self,mother_instance,PopulationGroupJson,feeding_json):
         self.mother = mother_instance
         record_dict = {}
         record_dict['firstName'] = self.first_name
@@ -411,11 +415,11 @@ class Baby(Person):
         # parse baby ohc
         identifier = self.parse_baby_ohc()
 
-        record_dict['identifications'] = {'system':'bay_idSystem_ohip',
+        record_dict['identifications'] = {'system':'baysil_idSystem_ohip',
                 'identifier':identifier}
                 
                 # inside identifications, coc id is not required
-                # {'system':'bay_idSystem_internal',
+                # {'system':'baysil_idSystem_internal',
                 # 'name':'CoC ID',
                 # 'identifier':str(self.coc_id or '')+'-B'}
         
@@ -423,26 +427,26 @@ class Baby(Person):
         # self.mother.coc_id = self.coc_id
 
         record_dict['contactInformation'] = [
-                {'system':'bay_contactSystem_email',
+                {'system':'baysil_contactSystem_email',
                 'value':self.mother.email},
-                {'system':'bay_contactSystem_phone',
+                {'system':'baysil_contactSystem_phone',
                 'value':self.mother.mobile_phone,
-                'systemType':'bay_contactUse_mobile',
-                'use':'bay_contactUse_personal'},
-                {'system':'bay_contactSystem_phone',
+                'systemType':'baysil_contactUse_mobile',
+                'use':'baysil_contactUse_personal'},
+                {'system':'baysil_contactSystem_phone',
                 'value':self.mother.home_phone,
-                'systemType':'bay_contactUse_landline',
-                'use':'bay_contactUse_home'},
-                {'system':'bay_contactSystem_phone',
+                'systemType':'baysil_contactUse_landline',
+                'use':'baysil_contactUse_home'},
+                {'system':'baysil_contactSystem_phone',
                 'value':self.mother.work_phone_with_extension,
-                'systemType':'bay_contactUse_landline',
-                'use':'bay_contactUse_business'}
+                'systemType':'baysil_contactUse_landline',
+                'use':'baysil_contactUse_business'}
         ]
         record_dict['contactPreference'] = {
                 'mayBeContacted':self.mother.may_contact,
                 'preferredSystem':None,
                 'preferredUse':None,
-                'preferredRelative':'bay_relationshipType_mother'
+                'preferredRelative':'baysil_relationshipType_mother'
         }
         # here we need to pass the address from mother to baby
         
@@ -485,7 +489,7 @@ class Baby(Person):
         else:
                 coc_id = self.coc_id
         record_dict['relatives'] = [
-                {'identifiedInSystem':'bay_idSystem_internal',
+                {'identifiedInSystem':'baysil_idSystem_internal',
                 'idSystemName':'CoC ID',
                 'identifiedAs':str(coc_id),
                 # as per requirements
@@ -493,10 +497,10 @@ class Baby(Person):
                 'middleName':None,#self.mother.middle_name,
                 'lastName':None,#self.mother.last_name,
                 'preferredName':None,#str(self.mother.first_name or '') + ' ' + str(self.mother.last_name or ''),
-                'relationship':'bay_relationshipType_mother'}
+                'relationship':'baysil_relationshipType_mother'}
         ]
 
-        self.build_baby_episode(record_dict)
+        self.build_baby_episode(record_dict,feeding_json)
        
         mother_episode = self.build_mother_episode()
         self.mother.episode.append(mother_episode)
@@ -505,35 +509,32 @@ class Baby(Person):
 
         return record_dict
 
-    def parse_feeding_method(self,feeding_method):
+    def parse_feeding_method(self,feeding_method,feeding_json):
 
         # parse the feeding method is very complicated
 
         # 1. check if the feeding method is empty
         if feeding_method == None:
                 # assume none / unknown
-                return None
+                return 'baysil_feedingMethod_unknown'
         else:   
                 
                 # 2. lower case string, split by comma, space, and slash, & sign, + sign
-                feeding_method = feeding_method.lower()
+                feeding_method = feeding_method.upper()
                 feeding_method = feeding_method.replace(',',' ')
                 feeding_method = feeding_method.replace('/',' ')
                 feeding_method = feeding_method.replace('&',' ')
                 feeding_method = feeding_method.replace('+',' ')
                 feeding_method = feeding_method.split(' ')
 
-                # 3 options, only breast, only formula, or both
-                # 3.1 only breast 
-                # # question: what is ebm?
-                if 'breast' in feeding_method and 'formula' not in feeding_method:
-                        return 'bay_feedingMethod_breast'
-                elif 'formula' in feeding_method and 'breast' not in feeding_method:
-                        return 'bay_feedingMethod_formula'
-                elif 'formula' in feeding_method and 'breast' in feeding_method:
-                        return 'bay_feedingMethod_combination'
-                else:
-                        return None
+                temp = []
+                for i in feeding_method:
+                        try:
+                                temp.append(feeding_json[i])
+                        except:
+                                pass
+                
+                return temp
 
 
     def build_mother_episode(self):
@@ -547,7 +548,7 @@ class Baby(Person):
         'start': self.initial_date,
         'end': self.d_c,
         'identifications':{
-                'system':'bay_idSystem_internal',
+                'system':'baysil_idSystem_internal',
                 'name':'CoC ID',
                 'identifier':str(coc_id or '')
         },
@@ -561,50 +562,50 @@ class Baby(Person):
                 {'firstName':None,
                 'middleName':None,
                 'lastName':None,
-                'role':'bay_providerRole_primaryMidwife'},
+                'role':'baysil_providerRole_primaryMidwife'},
                 # MW-other
                 {
                 'firstName':None,
                 'middleName':None,
                 'lastName':None,
-                'role':'bay_providerRole_secondaryMidwife'},
+                'role':'baysil_providerRole_secondaryMidwife'},
                 # MW-2nd fee
                 {'firstName':None,
                 'middleName':None,
                 'lastName':None,
-                'role':'bay_providerRole_secondaryMidwife'},
+                'role':'baysil_providerRole_secondaryMidwife'},
                 # MW-coordinating
                 {'firstName':None,
                 'middleName':None,
                 'lastName':None,
-                'role':'bay_providerRole_coordinatingMidwife'},
+                'role':'baysil_providerRole_coordinatingMidwife'},
                 # MW-other2
                 {'firstName':None,
                 'middleName':None,
                 'lastName':None,
-                'role':'bay_providerRole_midwife'},
+                'role':'baysil_providerRole_midwife'},
                 ],
         # baby and mother has different obersevations
         'observations':[
-                {'observable':'bay_observable_gravida',
+                {'observable':'baysil_observable_gravida',
                         'value':self.gravida,
                         'notes':None},
-                        {'observable':'bay_observable_para',
+                        {'observable':'baysil_observable_para',
                         'value':self.para,
                         'notes':None},
-                        {'observable':'bay_observable_edd',
+                        {'observable':'baysil_observable_edd',
                         'value':self.edd,
                         'notes':None},
-                        {'observable':'bay_observable_ipca',
+                        {'observable':'baysil_observable_ipca',
                         'value':self.ipca,
                         'notes':self.ipca_comment},
-                        {'observable':'bay_observable_transferredCare',
+                        {'observable':'baysil_observable_transferredCare',
                         'value':self.toc,
                         'notes':None},
-                        {'observable':'bay_observable_deliveryDate',
+                        {'observable':'baysil_observable_deliveryDate',
                         'value':self.date_of_birth,
                         'notes':None},
-                        {'observable':'bay_observable_deliveryPatternAll',
+                        {'observable':'baysil_observable_deliveryPatternAll',
                         'value':self.delivery_type,
                         'notes':None},
                 ],
@@ -623,7 +624,7 @@ class Baby(Person):
         return final_mother_episode
 
 
-    def build_baby_episode(self,record_dict):
+    def build_baby_episode(self,record_dict,feeding_json):
         # cocid is 5 digits, if it is less than 5 digits, add 0 in front of it
         if self.coc_id:
                 coc_id = str(self.coc_id).zfill(5)
@@ -633,7 +634,7 @@ class Baby(Person):
                 'start': self.date_of_birth,
                 'end': self.d_c,
                 'identifications':{
-                        'system':'bay_idSystem_internal',
+                        'system':'baysil_idSystem_internal',
                         'name':'CoC ID',
                         'identifier':str(coc_id or '')+'B'
                 },
@@ -647,41 +648,41 @@ class Baby(Person):
                         {'firstName':None,
                         'middleName':None,
                         'lastName':None,
-                        'role':'bay_providerRole_primaryMidwife'},
+                        'role':'baysil_providerRole_primaryMidwife'},
                         # MW-other
                         {
                         'firstName':None,
                         'middleName':None,
                         'lastName':None,
-                        'role':'bay_providerRole_secondaryMidwife'}
+                        'role':'baysil_providerRole_secondaryMidwife'}
                         ],
                 # baby and mother has different obersevations
                 'observations':[
-                        {'observable':'bay_observable_feedingAtBirth',
-                        'value':self.parse_feeding_method(self.feeding_at_birth),
+                        {'observable':'baysil_observable_feedingMethodAtBirth',
+                        'value':self.parse_feeding_method(self.feeding_at_birth,feeding_json),
                         'notes':self.feeding_at_birth},
-                        {'observable':'bay_observable_feedingAtDischarge',
-                        'value':self.parse_feeding_method(self.feeding_at_D_C),
+                        {'observable':'baysil_observable_feedingMethodAtDischarge',
+                        'value':self.parse_feeding_method(self.feeding_at_D_C,feeding_json),
                         'notes':self.feeding_at_D_C},
-                        {'observable':'bay_observable_transferredCare',
+                        {'observable':'baysil_observable_transferredCare',
                         'value':self.toc,
                         'notes':None},
-                        {'observable':'bay_observable_dateOfBirth',
+                        {'observable':'baysil_observable_dateOfBirth',
                         'value':self.date_of_birth,
                         'notes':None},
-                        {'observable':'bay_observable_deliveryPatternAtBirth',
+                        {'observable':'baysil_observable_deliveryPatternAtBirth',
                         'value':self.delivery_type,
                         'notes':None}, # question here.# what is this preterm?
-                        {'observable':'bay_observable_birthPlace',
+                        {'observable':'baysil_observable_birthPlace',
                         'value':self.birth_place,
                         'notes':None}],
                 'account':None,
                 'notes':None}
         if self.delivery_type == 'Premature':
-            record_dict['episode']['observations'].insert(5,{'observable':'bay_observable_pretermBirth',
+            record_dict['episode']['observations'].insert(5,{'observable':'baysil_observable_pretermBirth',
                                 'value':self.delivery_type,
                                 'notes':None})
-            # also to delete the bay_observable_deliveryPatternAtBirth
+            # also to delete the baysil_observable_deliveryPatternAtBirth
             record_dict['episode']['observations'].pop(4)
 
         self.update_baby_care_team_participants(record_dict)#, mw_2nd_fee, mw_coordinating, mw_other2)

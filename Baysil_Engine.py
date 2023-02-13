@@ -193,6 +193,9 @@ def main():
     with open('json/client_insurance_type.json') as f:
         client_insurance_type = json.load(f)
 
+    with open('json/feeding_method.json') as f:
+        feeding_json = json.load(f)
+
     # family dictionary is created
     count = 0
     
@@ -211,7 +214,7 @@ def main():
 
         for child in mother.children:
 
-            baby_record = child.build_baby_record(mother,special_population_map)
+            baby_record = child.build_baby_record(mother,special_population_map,feeding_json)
             
             # add baby record to the family list only for real baby with toc
             if child.toc != None:

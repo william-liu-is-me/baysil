@@ -1,0 +1,10 @@
+{
+
+    "BREAST": "baysil_feedingMethod_breast",
+    "FORMULA":"baysil_feedingMethod_formula",
+    "EXPRESSED BREAST MILK":"baysil_feedingMethod_ebm",
+    "INTRAVENOUS":"baysil_feedingMethod_iv",
+    "OTHER":"baysil_feedingMethod_other",
+    "UNKNOWN": "baysil_feedingMethod_unknown"
+
+}
