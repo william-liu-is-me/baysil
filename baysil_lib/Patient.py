@@ -609,7 +609,7 @@ class Baby(Person):
                         {'observable':'baysil_observable_deliveryDate',
                         'value':self.date_of_birth,
                         'notes':None},
-                        {'observable':'baysil_observable_deliveryPatternAll',
+                        {'observable':'baysil_observable_deliveryType',
                         'value':self.delivery_type,
                         'notes':None},
                 ],
@@ -679,7 +679,7 @@ class Baby(Person):
                         {'observable':'baysil_observable_dateOfBirth',
                         'value':self.date_of_birth,
                         'notes':None},
-                        {'observable':'baysil_observable_deliveryPatternAtBirth',
+                        {'observable':'baysil_observable_deliveryType',
                         'value':self.delivery_type,
                         'notes':None}, # question here.# what is this preterm?
                         {'observable':'baysil_observable_birthPlace',
@@ -691,7 +691,7 @@ class Baby(Person):
             record_dict['episode']['observations'].insert(5,{'observable':'baysil_observable_pretermBirth',
                                 'value':self.delivery_type,
                                 'notes':None})
-            # also to delete the baysil_observable_deliveryPatternAtBirth
+
             record_dict['episode']['observations'].pop(4)
 
         self.update_baby_care_team_participants(record_dict)#, mw_2nd_fee, mw_coordinating, mw_other2)

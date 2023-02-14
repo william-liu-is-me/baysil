@@ -242,11 +242,14 @@ def main():
             twin_coc_id = [item for item, count in collections.Counter(mother.coc_id).items() if count > 1]
             n = 0
             for child in mother.children:
+
                 # update twin babies's coc_id with a sequence number of A and B ...
+                # cannot handle one mother has more than 2 twins now
+
                 if child.coc_id in twin_coc_id:
+
                     sequence_number = chr(twin_coc_id.index(child.coc_id) + 65 + n)
                     child.record['episode']['identifications']['identifier'] = child.record['episode']['identifications']['identifier'] + sequence_number
-                    print(child.record['episode']['identifications']['identifier'])
                     n += 1
 
         # make this family list into a json file
