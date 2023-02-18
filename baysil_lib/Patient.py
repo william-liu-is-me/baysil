@@ -574,13 +574,13 @@ class Baby(Person):
                 coc_id = str(self.coc_id).zfill(5)
         else:
                 coc_id = self.coc_id
-
+        identifier = str(coc_id or '')
         mother_episode = {
         'start': self.initial_date,
         'end': self.d_c,
         'identifications':{
                 'system':'baysil_idSystem_blueHeronCocid',
-                'identifier':str(coc_id or '')
+                'identifier':identifier
         },
         'careManager': {
                 'firstName':None,
@@ -646,7 +646,10 @@ class Baby(Person):
                         'billingDate':self.billing_date,
                         'notes':None
         },
-        'notes':self.parse_notes_remove_html()
+        'notes':self.parse_notes_remove_html(),
+        'documents':[
+                {'fileName':f'path/{identifier}.pdf'}
+        ],
         }
 
         # update the caremanager, primary midwife and secondary midwife, 2nd fee, mw coordinating, other2.
@@ -665,13 +668,13 @@ class Baby(Person):
         sequence_number = ''
         
         # if there are twins, the sequence number is A and B and etc.
-
+        identifier = str(coc_id or '')+'B' + sequence_number
         record_dict['episode'] = {
                 'start': self.date_of_birth,
                 'end': self.d_c,
                 'identifications':{
                         'system':'baysil_idSystem_blueHeronCocid',
-                        'identifier':str(coc_id or '')+'B' + sequence_number
+                        'identifier':identifier
                 },
                 'careManager': {
                         'firstName':None,
@@ -712,7 +715,11 @@ class Baby(Person):
                         'value':self.birth_place,
                         'notes':None}],
                 'account':None,
-                'notes':None}
+                'notes':None,
+                'documents':[
+                        {'fileName':f'path/{identifier}.pdf',}
+                ]
+                }
         if self.delivery_type == 'Premature':
             record_dict['episode']['observations'].insert(5,{'observable':'baysil_observable_pretermBirth',
                                 'value':self.delivery_type,
@@ -753,7 +760,7 @@ class Baby(Person):
 
         caremanager = self.mw_billing.split(' ') if pd.isnull(self.mw_billing) == False else None
         primary_midwife = caremanager
-        secondary_midwife = self.mw_other.split(' ') if pd.isnull(self.mw_other) == False else None
+        secondary_midwife = self.mw_other
         mw_coordinating = self.mw_coordinating.split(' ') if pd.isnull(self.mw_coordinating) == False else None
         mw_other2 = self.mw_other2.split(' ') if pd.isnull(self.mw_other2) == False else None
         mw_2nd_fee = self.mw_2nd_fee
@@ -770,9 +777,16 @@ class Baby(Person):
                                 'lastName':primary_midwife[1],
                                 'role':'baysil_providerRole_primaryMidwife'})
         if secondary_midwife:
-                mother_episode['careTeamParticipants'].append({'firstName':secondary_midwife[0],
+                # convert to list
+               
+                secondary_midwife = secondary_midwife.split(',')
+
+                for item in secondary_midwife:
+                        item = item.split(' ')
+                        
+                        mother_episode['careTeamParticipants'].append({'firstName':item[0],
                                 'middleName':None,
-                                'lastName':secondary_midwife[1],
+                                'lastName':item[1],
                                 'role':'baysil_providerRole_secondaryMidwife'})
         
         if mw_2nd_fee:

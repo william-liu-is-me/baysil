@@ -211,8 +211,8 @@ def main():
         #print(count)
         # create baby record
         
-        if count == 50:
-            break
+        # if count == 50:
+        #     break
 
         for child in mother.children:
 
@@ -249,7 +249,10 @@ def main():
                 if child.coc_id in twin_coc_id:
 
                     sequence_number = chr(twin_coc_id.index(child.coc_id) + 65 + n)
-                    child.record['episode']['identifications']['identifier'] = child.record['episode']['identifications']['identifier'] + sequence_number
+                    final_identifier = child.record['episode']['identifications']['identifier'] + sequence_number
+                    child.record['episode']['identifications']['identifier'] = final_identifier
+                    # question: assume there is only 1 file in the documents
+                    child.record['episode']['documents'][0]['fileName']=f'path/{final_identifier}.pdf'
                     n += 1
 
             # mother episode can be combined into one episode when the episode is from a twin
@@ -268,8 +271,8 @@ def main():
 
         # make this family list into a json file
 
-        with open(f'sample/{mother.coc_id}_{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:
-            json.dump(family_list, outfile)
+        # with open(f'sample/{mother.coc_id}_{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:
+        #     json.dump(family_list, outfile)
 
 
     df = pd.DataFrame({'mother_name':temp_list_1,'mother_cod_id':temp_list_3,'number_of_children':temp_list_2})

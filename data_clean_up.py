@@ -81,12 +81,14 @@ def clean_up_Blue_Heron_Babies_and_Birth_Log():
 
 # data clean up for Courses of Care
 
-def clean_up_multiple_wives(midwivesJson,data):
+def clean_up_multiple_wives(midwivesJson,data,column_name,seperator):
+
+    data[column_name] = data[column_name].str.split(seperator)
     whole_list = []
     for index, row in data.iterrows():
         temp = []
-        if row['MW-2nd fee'] is not None:
-            for i in row['MW-2nd fee']:
+        if row[column_name] is not None:
+            for i in row[column_name]:
                 try:
                     temp.append(midwivesJson[i])
                 except:
@@ -99,7 +101,7 @@ def clean_up_multiple_wives(midwivesJson,data):
         else:
             whole_list.append(None)
     
-    data['MW-2nd fee'] = whole_list
+    data[column_name] = whole_list
 
 
 def clean_up_Courses_of_Care():
@@ -122,16 +124,16 @@ def clean_up_Courses_of_Care():
     
     # use pandas update MW-billing	MW-other columns
     data['MW-billing'] = data['MW-billing'].replace(midwivesJson)
-    data['MW-other'] = data['MW-other'].replace(midwivesJson)
+    #data['MW-other'] = data['MW-other'].replace(midwivesJson)
+    clean_up_multiple_wives(midwivesJson,data,'MW-other','/')
     data['MW-other2']=data['MW-other2'].replace(midwivesJson)
     data['MW-coordinating'] = data['MW-coordinating'].replace(midwivesJson)
 
     # there are some mutiple values in the MW-2nd fee column, so we need to split the string and then update the value
-    data['MW-2nd fee'] = data['MW-2nd fee'].str.split('/')
-    # some of the values are null in the column, some has 1 value, some has more.
 
+    # some of the values are null in the column, some has 1 value, some has more.
     # this is for blue_heron course of care only
-    clean_up_multiple_wives(midwivesJson,data)
+    clean_up_multiple_wives(midwivesJson,data,'MW-2nd fee','/')
     
     
 
