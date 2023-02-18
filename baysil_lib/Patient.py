@@ -293,8 +293,6 @@ class Mother(Person):
         return mother_record
 
 
-        
-
 
 
 class Baby(Person):
@@ -588,35 +586,6 @@ class Baby(Person):
                 'lastName':None,
         },
         'careTeamParticipants':[],
-        # [
-        #         # MW-billing
-        #         {'firstName':None,
-        #         'middleName':None,
-        #         'lastName':None,
-        #         'role':'baysil_providerRole_primaryMidwife'},
-        #         # MW-other
-        #         {
-        #         'firstName':None,
-        #         'middleName':None,
-        #         'lastName':None,
-        #         'role':'baysil_providerRole_secondaryMidwife'},
-        #         # MW-2nd fee
-        #         {'firstName':None,
-        #         'middleName':None,
-        #         'lastName':None,
-        #         'role':'baysil_providerRole_secondaryMidwife'},
-        #         # MW-coordinating
-        #         {'firstName':None,
-        #         'middleName':None,
-        #         'lastName':None,
-        #         'role':'baysil_providerRole_coordinatingMidwife'},
-        #         # MW-other2
-        #         {'firstName':None,
-        #         'middleName':None,
-        #         'lastName':None,
-        #         'role':'baysil_providerRole_midwife'},
-        #         ],
-        # baby and mother has different obersevations
         'observations':[
                 {'observable':'baysil_observable_gravida',
                         'value':self.gravida,
