@@ -773,9 +773,9 @@ class Baby(Person):
         caremanager = self.mw_billing.split(' ') if pd.isnull(self.mw_billing) == False else None
         primary_midwife = caremanager
         secondary_midwife = self.mw_other
-        mw_coordinating = self.mw_coordinating #.split(' ') if pd.isnull(self.mw_coordinating) == False else None
-        mw_other2 = self.mw_other2 #.split(' ') if pd.isnull(self.mw_other2) == False else None
+        mw_coordinating = self.mw_coordinating
         mw_2nd_fee = self.mw_2nd_fee
+        mw_other2 = self.mw_other2
 
         try:
             mother_episode['careManager']['firstName'] = caremanager[0]
@@ -794,19 +794,9 @@ class Baby(Person):
         self.handle_multiple_midwives_in_team_participants(mw_2nd_fee,mother_episode,'baysil_providerRole_secondaryMidwife')
 
         self.handle_multiple_midwives_in_team_participants(mw_coordinating,mother_episode,'baysil_providerRole_coordinatingMidwife')
-        # if mw_coordinating:
-        #         mother_episode['careTeamParticipants'].append({'firstName':mw_coordinating[0],
-        #                         'middleName':None,
-        #                         'lastName':mw_coordinating[1],
-        #                         'role':'baysil_providerRole_coordinatingMidwife'})
+
         self.handle_multiple_midwives_in_team_participants(mw_other2,mother_episode,'baysil_providerRole_midwife')
-        # if mw_other2:
-        #         mother_episode['careTeamParticipants'].append({'firstName':mw_other2[0],
-        #                         'middleName':None,
-        #                         'lastName':mw_other2[1],
-        #                         'role':'baysil_providerRole_midwife'})
-        
-        
+
         del caremanager, primary_midwife, secondary_midwife, mw_coordinating, mw_other2,mw_2nd_fee
 
         return mother_episode
