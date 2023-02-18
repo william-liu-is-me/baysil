@@ -252,6 +252,20 @@ def main():
                     child.record['episode']['identifications']['identifier'] = child.record['episode']['identifications']['identifier'] + sequence_number
                     n += 1
 
+            # mother episode can be combined into one episode when the episode is from a twin
+            episode_list = []
+            for episode in mother.episode:
+                # if the identifier already exist, remove this episode from mother.episode 
+                if episode['identifications']['identifier'] in episode_list:
+                    mother.episode.remove(episode)
+                    # remove the last item in episode_list
+                else:
+                    episode_list.append(episode['identifications']['identifier'])
+                      
+
+            
+           
+
         # make this family list into a json file
 
         with open(f'sample/{mother.coc_id}_{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:

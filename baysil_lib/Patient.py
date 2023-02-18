@@ -50,7 +50,8 @@ class Mother(Person):
         
         self.children.append(baby)
 
-    # inherit from Person class
+        # more than 1 episode, notes show which episode?
+        
     def create_mother_dict_for_all_information(self):
         mother_original_data_dictionary = {}
         mother_original_data_dictionary['client_name'] = self.client_name
@@ -72,6 +73,30 @@ class Mother(Person):
         mother_original_data_dictionary['date_of_birth'] = self.date_of_birth
         mother_original_data_dictionary['may_contact'] = self.may_contact
         mother_original_data_dictionary['contact_method'] = self.contact_method
+
+        for child in self.children:
+                mother_original_data_dictionary['Special population'] = child.special_population
+                mother_original_data_dictionary['Special population description'] = child.special_population_description
+                mother_original_data_dictionary['Gravida'] = child.gravida
+                mother_original_data_dictionary['Para'] = child.para
+                mother_original_data_dictionary['EDD'] = child.edd
+                mother_original_data_dictionary['Initial date'] = child.initial_date
+                mother_original_data_dictionary['D/C'] = child.d_c
+                mother_original_data_dictionary['Billing date'] = child.billing_date
+                mother_original_data_dictionary['Billable'] = child.billable
+                mother_original_data_dictionary['MW-billing'] = child.mw_billing
+                mother_original_data_dictionary['MW-other'] = child.mw_other
+                mother_original_data_dictionary['MW-other2'] = child.mw_other2
+                mother_original_data_dictionary['MW-coordinating'] = child.mw_coordinating
+                mother_original_data_dictionary['MW-2nd fee'] = child.mw_2nd_fee
+                mother_original_data_dictionary['IPCA'] = child.ipca
+                mother_original_data_dictionary['IPCA comment'] = child.ipca_comment
+                mother_original_data_dictionary['Notes'] = child.notes
+                mother_original_data_dictionary['Special Instructions'] = child.special_instructions
+                mother_original_data_dictionary['Chart Scan Date'] = child.chart_scan_date
+                mother_original_data_dictionary['Chart Shred Date'] = child.chart_shred_date
+                
+
         # end of client list file data
 
         return {'Imported date': None,'original data':mother_original_data_dictionary}
@@ -88,7 +113,8 @@ class Mother(Person):
                 # this is ohip number 
                 if ohip_number[:-2].isdigit() and len(ohip_number[:-2]) == 10:
                         number = ohip_number[:-2]
-                        return "baysil_idSystem_ohipOntario",str(number)
+                        version = ohip_number[-2:]
+                        return "baysil_idSystem_ohipOntario",str(number+" "+version)
 
                 elif ohip_number.isdigit() and len(ohip_number) == 10:
                         return "baysil_idSystem_ohipOntario",str(ohip_number)
@@ -315,7 +341,7 @@ class Baby(Person):
         baby_dict['baby gender'] = self.gender 
         baby_dict['feeding at birth'] = self.feeding_at_birth
         baby_dict['feeding at D/C'] = self.feeding_at_D_C
-        baby_dict['baby ohip'] = self.ohip_number
+        baby_dict['baby ohip'] = self.baby_ohc
         # question: ignore field 1,2,3 for now 
         baby_dict['delivery date'] = self.date_of_birth
         baby_dict['delivery type'] = self.delivery_type
@@ -327,28 +353,29 @@ class Baby(Person):
         # end of baby information from 2 baby files 
 
         # question: courses of care file add in here?
+        # no 
 
-        baby_dict['Client Name'] = self.mother_name
-        baby_dict['special population'] = self.special_population
-        baby_dict['special population description'] = self.special_population_description
-        baby_dict['gravida'] = self.gravida
-        baby_dict['para'] = self.para
-        baby_dict['EDD'] = self.edd
-        baby_dict['Initial Date'] = self.initial_date
-        baby_dict['D/C'] = self.d_c
-        baby_dict['Billing Date'] = self.billing_date
-        baby_dict['Billable'] = self.billable
-        baby_dict['MW-billing'] = self.mw_billing
-        baby_dict['MW-other'] = self.mw_other
-        baby_dict['MW-other2'] = self.mw_other2
-        baby_dict['MW-coordinating'] = self.mw_coordinating
-        baby_dict['MW-2nd fee'] = self.mw_2nd_fee
-        baby_dict['IPCA'] = self.ipca
-        baby_dict['IPCA Comment'] = self.ipca_comment
-        baby_dict['Notes'] = self.notes
-        baby_dict['special instructions'] = self.special_instructions
-        baby_dict['chart scan date'] = self.chart_scan_date
-        baby_dict['chart shred date'] = self.chart_shred_date
+        # baby_dict['Client Name'] = self.mother_name
+        # baby_dict['special population'] = self.special_population
+        # baby_dict['special population description'] = self.special_population_description
+        # baby_dict['gravida'] = self.gravida
+        # baby_dict['para'] = self.para
+        # baby_dict['EDD'] = self.edd
+        # baby_dict['Initial Date'] = self.initial_date
+        # baby_dict['D/C'] = self.d_c
+        # baby_dict['Billing Date'] = self.billing_date
+        # baby_dict['Billable'] = self.billable
+        # baby_dict['MW-billing'] = self.mw_billing
+        # baby_dict['MW-other'] = self.mw_other
+        # baby_dict['MW-other2'] = self.mw_other2
+        # baby_dict['MW-coordinating'] = self.mw_coordinating
+        # baby_dict['MW-2nd fee'] = self.mw_2nd_fee
+        # baby_dict['IPCA'] = self.ipca
+        # baby_dict['IPCA Comment'] = self.ipca_comment
+        # baby_dict['Notes'] = self.notes
+        # baby_dict['special instructions'] = self.special_instructions
+        # baby_dict['chart scan date'] = self.chart_scan_date
+        # baby_dict['chart shred date'] = self.chart_shred_date
 
 
 
@@ -414,6 +441,7 @@ class Baby(Person):
         
         # parse baby ohc
         identifier = self.parse_baby_ohc()
+        self.baby_ohc = identifier
 
         record_dict['identifications'] = {'system':'baysil_idSystem_ohip',
                 'identifier':identifier}
@@ -489,9 +517,8 @@ class Baby(Person):
         else:
                 coc_id = self.coc_id
         record_dict['relatives'] = [
-                {'identifiedInSystem':'baysil_idSystem_internal',
-                'idSystemName':'CoC ID',
-                'identifiedAs':str(coc_id),
+                {'identifiedInSystem':'baysil_idSystem_blueHeronCocid',
+                'identifier':str(coc_id),
                 # as per requirements
                 'firstName':None,#self.mother.first_name,
                 'middleName':None,#self.mother.middle_name,
@@ -552,8 +579,7 @@ class Baby(Person):
         'start': self.initial_date,
         'end': self.d_c,
         'identifications':{
-                'system':'baysil_idSystem_internal',
-                'name':'CoC ID',
+                'system':'baysil_idSystem_blueHeronCocid',
                 'identifier':str(coc_id or '')
         },
         'careManager': {
@@ -561,34 +587,35 @@ class Baby(Person):
                 'middleName':None,
                 'lastName':None,
         },
-        'careTeamParticipants':[
-                # MW-billing
-                {'firstName':None,
-                'middleName':None,
-                'lastName':None,
-                'role':'baysil_providerRole_primaryMidwife'},
-                # MW-other
-                {
-                'firstName':None,
-                'middleName':None,
-                'lastName':None,
-                'role':'baysil_providerRole_secondaryMidwife'},
-                # MW-2nd fee
-                {'firstName':None,
-                'middleName':None,
-                'lastName':None,
-                'role':'baysil_providerRole_secondaryMidwife'},
-                # MW-coordinating
-                {'firstName':None,
-                'middleName':None,
-                'lastName':None,
-                'role':'baysil_providerRole_coordinatingMidwife'},
-                # MW-other2
-                {'firstName':None,
-                'middleName':None,
-                'lastName':None,
-                'role':'baysil_providerRole_midwife'},
-                ],
+        'careTeamParticipants':[],
+        # [
+        #         # MW-billing
+        #         {'firstName':None,
+        #         'middleName':None,
+        #         'lastName':None,
+        #         'role':'baysil_providerRole_primaryMidwife'},
+        #         # MW-other
+        #         {
+        #         'firstName':None,
+        #         'middleName':None,
+        #         'lastName':None,
+        #         'role':'baysil_providerRole_secondaryMidwife'},
+        #         # MW-2nd fee
+        #         {'firstName':None,
+        #         'middleName':None,
+        #         'lastName':None,
+        #         'role':'baysil_providerRole_secondaryMidwife'},
+        #         # MW-coordinating
+        #         {'firstName':None,
+        #         'middleName':None,
+        #         'lastName':None,
+        #         'role':'baysil_providerRole_coordinatingMidwife'},
+        #         # MW-other2
+        #         {'firstName':None,
+        #         'middleName':None,
+        #         'lastName':None,
+        #         'role':'baysil_providerRole_midwife'},
+        #         ],
         # baby and mother has different obersevations
         'observations':[
                 {'observable':'baysil_observable_gravida',
@@ -643,8 +670,7 @@ class Baby(Person):
                 'start': self.date_of_birth,
                 'end': self.d_c,
                 'identifications':{
-                        'system':'baysil_idSystem_internal',
-                        'name':'CoC ID',
+                        'system':'baysil_idSystem_blueHeronCocid',
                         'identifier':str(coc_id or '')+'B' + sequence_number
                 },
                 'careManager': {
@@ -726,50 +752,56 @@ class Baby(Person):
         # update the caremanager, primary midwife and secondary midwife
 
         caremanager = self.mw_billing.split(' ') if pd.isnull(self.mw_billing) == False else None
-        primary_midwife = self.mw_primary.split(' ') if pd.isnull(self.mw_primary) == False else None
-        secondary_midwife = self.mw_secondary.split(' ') if pd.isnull(self.mw_secondary) == False else None
-        mw_2nd_fee = self.mw_2nd_fee.split(' ') if pd.isnull(self.mw_2nd_fee) == False else None
+        primary_midwife = caremanager
+        secondary_midwife = self.mw_other.split(' ') if pd.isnull(self.mw_other) == False else None
         mw_coordinating = self.mw_coordinating.split(' ') if pd.isnull(self.mw_coordinating) == False else None
         mw_other2 = self.mw_other2.split(' ') if pd.isnull(self.mw_other2) == False else None
-
+        mw_2nd_fee = self.mw_2nd_fee
 
         try:
             mother_episode['careManager']['firstName'] = caremanager[0]
             mother_episode['careManager']['lastName'] = caremanager[1]
         except:
                 pass
-
-        try:
-            mother_episode['careTeamParticipants'][0]['firstName'] = primary_midwife[0]
-            mother_episode['careTeamParticipants'][0]['lastName'] = primary_midwife[1]
-        except:
-                pass
-
-        try:
-            mother_episode['careTeamParticipants'][1]['firstName'] = secondary_midwife[0]
-            mother_episode['careTeamParticipants'][1]['lastName'] = secondary_midwife[1]
-        except:
-                pass
-
-        try:
-                mother_episode['careTeamParticipants'][2]['firstName'] = mw_2nd_fee[0]
-                mother_episode['careTeamParticipants'][2]['lastName'] = mw_2nd_fee[1]
-        except:
-                pass
-
-        try:
-                mother_episode['careTeamParticipants'][3]['firstName'] = mw_coordinating[0]
-                mother_episode['careTeamParticipants'][3]['lastName'] = mw_coordinating[1]
-        except:
-                pass
-
-        try:
-                mother_episode['careTeamParticipants'][4]['firstName'] = mw_other2[0]
-                mother_episode['careTeamParticipants'][4]['lastName'] = mw_other2[1]
-        except:
-                pass
         
-        del caremanager, primary_midwife, secondary_midwife, mw_2nd_fee, mw_coordinating, mw_other2
+        if primary_midwife:
+                mother_episode['careTeamParticipants'].append({'firstName':primary_midwife[0],
+                                'middleName':None,
+                                'lastName':primary_midwife[1],
+                                'role':'baysil_providerRole_primaryMidwife'})
+        if secondary_midwife:
+                mother_episode['careTeamParticipants'].append({'firstName':secondary_midwife[0],
+                                'middleName':None,
+                                'lastName':secondary_midwife[1],
+                                'role':'baysil_providerRole_secondaryMidwife'})
+        
+        if mw_2nd_fee:
+                # convert to list
+                mw_2nd_fee = mw_2nd_fee.split(',')
+                
+                for item in mw_2nd_fee:
+                    
+                    item = item.split(' ')                        
+                        
+                    mother_episode['careTeamParticipants'].append({'firstName':item[0],
+                                'middleName':None,
+                                'lastName':item[1],
+                                'role':'baysil_providerRole_secondaryMidwife'})
+
+        if mw_coordinating:
+                mother_episode['careTeamParticipants'].append({'firstName':mw_coordinating[0],
+                                'middleName':None,
+                                'lastName':mw_coordinating[1],
+                                'role':'baysil_providerRole_coordinatingMidwife'})
+        
+        if mw_other2:
+                mother_episode['careTeamParticipants'].append({'firstName':mw_other2[0],
+                                'middleName':None,
+                                'lastName':mw_other2[1],
+                                'role':'baysil_providerRole_midwife'})
+        
+        
+        del caremanager, primary_midwife, secondary_midwife, mw_coordinating, mw_other2,mw_2nd_fee
 
         return mother_episode
 

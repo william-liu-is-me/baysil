@@ -1,6 +1,6 @@
 import pandas as pd 
 import json
-
+import numpy as np
 # process data first and create a new clean csv file
 
 def clean_up_client_list():
@@ -80,10 +80,33 @@ def clean_up_Blue_Heron_Babies_and_Birth_Log():
     data.to_csv('cleaned_data/Blue Heron Babies and Birth Log.csv',index=False)
 
 # data clean up for Courses of Care
+
+def clean_up_multiple_wives(midwivesJson,data):
+    whole_list = []
+    for index, row in data.iterrows():
+        temp = []
+        if row['MW-2nd fee'] is not None:
+            for i in row['MW-2nd fee']:
+                try:
+                    temp.append(midwivesJson[i])
+                except:
+                    pass
+                    
+            #convert the list to string
+            temp = ', '.join(temp)
+            whole_list.append(temp)
+            
+        else:
+            whole_list.append(None)
+    
+    data['MW-2nd fee'] = whole_list
+
+
 def clean_up_Courses_of_Care():
     data = pd.read_csv('raw_data/Courses of Care.csv',encoding='cp1252')
 # clean up the data by removing the 0x92 byte
     data = data.replace('’', "'", regex=True)
+    data = data.replace(np.nan,None)
     # update the speical population column with True or False instead of 1 or 0
     data['Special Population'] = data['Special Population'].astype(str)
     data['Special Population'] = data['Special Population'].str.replace(r'1', 'True',True)
@@ -100,13 +123,16 @@ def clean_up_Courses_of_Care():
     # use pandas update MW-billing	MW-other columns
     data['MW-billing'] = data['MW-billing'].replace(midwivesJson)
     data['MW-other'] = data['MW-other'].replace(midwivesJson)
-    data['MW-coordinating'] = data['MW-coordinating'].replace(midwivesJson)
-    data['MW-2nd fee'] = data['MW-2nd fee'].replace(midwivesJson)
-
-
-    # pandas map function return orignal value if it is nan
     data['MW-other2']=data['MW-other2'].replace(midwivesJson)
+    data['MW-coordinating'] = data['MW-coordinating'].replace(midwivesJson)
 
+    # there are some mutiple values in the MW-2nd fee column, so we need to split the string and then update the value
+    data['MW-2nd fee'] = data['MW-2nd fee'].str.split('/')
+    # some of the values are null in the column, some has 1 value, some has more.
+
+    # this is for blue_heron course of care only
+    clean_up_multiple_wives(midwivesJson,data)
+    
     
 
     del midwivesJson
