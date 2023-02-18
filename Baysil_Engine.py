@@ -179,8 +179,8 @@ def main():
     df.to_csv('check_list/baby without mother.csv',index=False)
     del df
 
-    print('number of baby without mother:',n)
-    print('number of baby with mother:',m)
+    # print('number of baby without mother:',n)
+    # print('number of baby with mother:',m)
 
     # open json file
     with open('json/special_population_mapping.json') as f:
@@ -275,7 +275,7 @@ def main():
             json.dump(family_list, outfile)
 
 
-    df = pd.DataFrame({'mother_name':temp_list_1,'mother_cod_id':temp_list_3,'number_of_children':temp_list_2})
+    df = pd.DataFrame({'mother_name':temp_list_1,'mother_cod_id':temp_list_3,'number_of_episode':temp_list_2})
     df.to_csv('check_list/number of baby for each mother.csv',index=False)
         
 

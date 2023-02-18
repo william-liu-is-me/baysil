@@ -191,23 +191,28 @@ class Mother(Person):
                 'identifier':identifier}
         ]
 
-
-        mother_record['contactInformation'] = [
-                {'system':'baysil_contactSystem_email',
-                'value':self.email},
-                {'system':'baysil_contactSystem_phone',
+        # if the value is none, dont even show this field 
+        contact_info = []
+        if self.email:
+                contact_info.append({'system':'baysil_contactSystem_email',
+                'value':self.email})
+        if self.mobile_phone:
+                contact_info.append({'system':'baysil_contactSystem_phone',
                 'value':self.mobile_phone,
                 'systemType':'baysil_contactUse_mobile',
-                'use':'baysil_contactUse_personal'},
-                {'system':'baysil_contactSystem_phone',
+                'use':'baysil_contactUse_personal'})
+        if self.home_phone:
+                contact_info.append({'system':'baysil_contactSystem_phone',
                 'value':self.home_phone,
                 'systemType':'baysil_contactUse_landline',
-                'use':'baysil_contactUse_home'},
-                {'system':'baysil_contactSystem_phone',
+                'use':'baysil_contactUse_home'})
+        if self.work_phone_with_extension:
+                contact_info.append({'system':'baysil_contactSystem_phone',
                 'value':self.work_phone_with_extension,
                 'systemType':'baysil_contactUse_landline',
-                'use':'baysil_contactUse_business'}
-        ]
+                'use':'baysil_contactUse_business'})
+        mother_record['contactInformation'] = contact_info
+        
         a,b,c = self.parse_contact_preference(preferredcontactmethod)
 
         mother_record['contactPreference'] = {
@@ -451,23 +456,27 @@ class Baby(Person):
         
         # add baby's coc_id to mother's coc_id
         # self.mother.coc_id = self.coc_id
-
-        record_dict['contactInformation'] = [
-                {'system':'baysil_contactSystem_email',
-                'value':self.mother.email},
-                {'system':'baysil_contactSystem_phone',
+        contact_info = []
+        if self.mother.email:
+                contact_info.append({'system':'baysil_contactSystem_email',
+                'value':self.mother.email})
+        if self.mother.mobile_phone:
+                contact_info.append({'system':'baysil_contactSystem_phone',
                 'value':self.mother.mobile_phone,
                 'systemType':'baysil_contactUse_mobile',
-                'use':'baysil_contactUse_personal'},
-                {'system':'baysil_contactSystem_phone',
+                'use':'baysil_contactUse_personal'})
+        if self.mother.home_phone:
+                contact_info.append({'system':'baysil_contactSystem_phone',
                 'value':self.mother.home_phone,
                 'systemType':'baysil_contactUse_landline',
-                'use':'baysil_contactUse_home'},
-                {'system':'baysil_contactSystem_phone',
+                'use':'baysil_contactUse_home'})
+        if self.mother.work_phone_with_extension:
+                contact_info.append({'system':'baysil_contactSystem_phone',
                 'value':self.mother.work_phone_with_extension,
                 'systemType':'baysil_contactUse_landline',
-                'use':'baysil_contactUse_business'}
-        ]
+                'use':'baysil_contactUse_business'})
+        record_dict['contactInformation'] = contact_info
+        
         record_dict['contactPreference'] = {
                 'mayBeContacted':self.mother.may_contact,
                 'preferredSystem':None,
