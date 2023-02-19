@@ -46,6 +46,7 @@ def clean_up_Blue_Heron_Babies_and_Birth_Log():
     data_2 = pd.read_csv('raw_data/Birth Log.csv',encoding='cp1252')
     # join 2 table on CoC ID
     data = pd.merge(data,data_2,on='CoC ID',how='outer')
+    data = data.replace(np.nan,None)
     del data_2
     # clean up the data by removing the 0x92 byte
     data = data.replace('’', "'", regex=True)
@@ -73,7 +74,8 @@ def clean_up_Blue_Heron_Babies_and_Birth_Log():
 
     # update the MW Attending - primary and MW Attending - secondary
     data['MW Attending - primary'] = data['MW Attending - primary'].replace(midwivesJson)
-    data['MW Attending - secondary'] = data['MW Attending - secondary'].replace(midwivesJson)
+    clean_up_multiple_wives(midwivesJson,data,'MW Attending - secondary','/')
+    #data['MW Attending - secondary'] = data['MW Attending - secondary'].replace(midwivesJson)
 
     del midwivesJson
 
@@ -88,6 +90,7 @@ def clean_up_multiple_wives(midwivesJson,data,column_name,seperator):
     for index, row in data.iterrows():
         temp = []
         if row[column_name] is not None:
+            
             for i in row[column_name]:
                 try:
                     temp.append(midwivesJson[i])

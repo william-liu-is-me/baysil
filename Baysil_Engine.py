@@ -208,11 +208,9 @@ def main():
     for mother in mother_list:
         family_list = []
         count += 1
-        #print(count)
-        # create baby record
-        
-        # if count == 50:
-        #     break
+
+        if count == 50:
+            break
 
         for child in mother.children:
 

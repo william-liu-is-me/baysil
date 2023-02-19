@@ -1,6 +1,5 @@
 import pandas as pd
 import re
-import copy
 
 class Person:
     def __init__(self,first_name=None,middle_name=None,last_name=None,partner_name=None,home_phone=None,work_phone_with_extension=None,mobile_phone=None,address=None,city=None,province=None,postal_code=None,email=None,
@@ -459,7 +458,7 @@ class Baby(Person):
         contact_info = []
         if self.mother.email:
                 contact_info.append({'system':'baysil_contactSystem_email',
-                'value':self.mother.email})
+                'value':self.mother.email}) 
         if self.mother.mobile_phone:
                 contact_info.append({'system':'baysil_contactSystem_phone',
                 'value':self.mother.mobile_phone,
@@ -485,6 +484,7 @@ class Baby(Person):
         }
         # here we need to pass the address from mother to baby
         
+
         self.address = self.mother.address
         self.city = self.mother.city
         self.province = self.mother.province
@@ -664,13 +664,7 @@ class Baby(Person):
                         {'firstName':None,
                         'middleName':None,
                         'lastName':None,
-                        'role':'baysil_providerRole_primaryMidwife'},
-                        # MW-other
-                        {
-                        'firstName':None,
-                        'middleName':None,
-                        'lastName':None,
-                        'role':'baysil_providerRole_secondaryMidwife'}
+                        'role':'baysil_providerRole_primaryMidwife'}
                         ],
                 # baby and mother has different obersevations
                 'observations':[
@@ -713,7 +707,7 @@ class Baby(Person):
                 # update the caremanager, primary midwife and secondary midwife
         caremanager = self.mw_primary.split(' ') if pd.isnull(self.mw_primary) == False else None
         primary_midwife = caremanager
-        secondary_midwife = self.mw_secondary.split(' ') if pd.isnull(self.mw_secondary) == False else None
+        secondary_midwife = self.mw_secondary #.split(' ') if pd.isnull(self.mw_secondary) == False else None
 
         try:
        
@@ -726,12 +720,14 @@ class Baby(Person):
             record_dict['episode']['careTeamParticipants'][0]['lastName'] = primary_midwife[1]
         except:
                 pass
-        try:
-            record_dict['episode']['careTeamParticipants'][1]['firstName'] = secondary_midwife[0]
-            record_dict['episode']['careTeamParticipants'][1]['lastName'] = secondary_midwife[1]
-        except:
-                pass
+        # try:
+        #     record_dict['episode']['careTeamParticipants'][1]['firstName'] = secondary_midwife[0]
+        #     record_dict['episode']['careTeamParticipants'][1]['lastName'] = secondary_midwife[1]
+        # except:
+        #         pass
 
+        self.handle_multiple_midwives_in_team_participants(secondary_midwife,record_dict['episode'],'baysil_providerRole_secondaryMidwife')
+    
     def handle_multiple_midwives_in_team_participants(self,midwife,episode,role):
         if midwife:
                 # convert to list
@@ -739,7 +735,7 @@ class Baby(Person):
 
                 for item in midwife:
                         item = item.split(' ')
-                        
+
                         episode['careTeamParticipants'].append({'firstName':item[0],
                                 'middleName':None,
                                 'lastName':item[1],
