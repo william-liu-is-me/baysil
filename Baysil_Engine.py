@@ -129,18 +129,18 @@ def main(volumn,create_json=False):
 
         baby_list.append(baby)
 
-    tmp_data = pd.read_csv('cleaned_data/Blue Heron Babies and Birth Log.csv')
-    tmp_data = tmp_data.replace(np.nan,None)
-    tmp_data = tmp_data[~tmp_data['CoC ID'].isin(match_list)]
+    # check if all baby are handled
+    # tmp_data = pd.read_csv('cleaned_data/Blue Heron Babies and Birth Log.csv')
+    # tmp_data = tmp_data.replace(np.nan,None)
+    # tmp_data = tmp_data[~tmp_data['CoC ID'].isin(match_list)]
 
     # remaining data is the data that has no coc_id match
-    data.to_csv('check_list/remaining data.csv',index=False)
-    tmp_data.to_csv('check_list/remaining baby data.csv',index=False)
+    # data.to_csv('check_list/remaining data.csv',index=False)
+    # tmp_data.to_csv('check_list/remaining baby data.csv',index=False)
     
-    del data, tmp_data
+    # del data, tmp_data
 
     # create a family dictionary with mother
-
     # once the baby find mother, add them into the family list, if the family has more than 1 baby, add them into the same family
 
     mother_dict = {}
@@ -207,7 +207,6 @@ def main(volumn,create_json=False):
     
     for mother in mother_list:
         family_list = []
-        count += 1
 
         if count == volumn:
             break
@@ -265,12 +264,15 @@ def main(volumn,create_json=False):
                       
 
             
-           
+        # convert mother.coc_id to a string
+        temp_name = ', '.join(str(item) for item in mother.coc_id)
 
         # make this family list into a json file
         if create_json:
-            with open(f'sample/{mother.coc_id}_{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:
+            with open(f'sample/{temp_name} - {mother.first_name} {mother.last_name} family.json', 'w') as outfile:
                 json.dump(family_list, outfile)
+        
+        count += 1
 
 
     df = pd.DataFrame({'mother_name':temp_list_1,'mother_cod_id':temp_list_3,'number_of_episode':temp_list_2})
@@ -278,4 +280,4 @@ def main(volumn,create_json=False):
         
 
 if __name__ == '__main__':
-    main(10,False)
+    main(10,True)
