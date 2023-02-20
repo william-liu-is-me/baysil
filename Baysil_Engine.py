@@ -4,7 +4,7 @@ import numpy as np
 from baysil_lib.Patient import *
 import collections
 
-def main():
+def main(volumn,create_json=False):
     # data read and clean up for client list
     data = pd.read_csv('cleaned_data/Client List.csv')
     # fill nan with None
@@ -209,7 +209,7 @@ def main():
         family_list = []
         count += 1
 
-        if count == 50:
+        if count == volumn:
             break
 
         for child in mother.children:
@@ -268,9 +268,9 @@ def main():
            
 
         # make this family list into a json file
-
-        with open(f'sample/{mother.coc_id}_{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:
-            json.dump(family_list, outfile)
+        if create_json:
+            with open(f'sample/{mother.coc_id}_{mother.first_name}_{mother.last_name}_family.json', 'w') as outfile:
+                json.dump(family_list, outfile)
 
 
     df = pd.DataFrame({'mother_name':temp_list_1,'mother_cod_id':temp_list_3,'number_of_episode':temp_list_2})
@@ -278,4 +278,4 @@ def main():
         
 
 if __name__ == '__main__':
-    main()
+    main(10,False)

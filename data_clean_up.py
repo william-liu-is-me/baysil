@@ -8,6 +8,7 @@ def clean_up_client_list():
     data = pd.read_csv('raw_data/Client List.csv',encoding='cp1252')
     # clean up the data by removing the 0x92 byte
     data = data.replace('’', "'", regex=True)
+    
 
     # format the DoB column to be in the format of month day, year
     data['DoB'] = pd.to_datetime(data['DoB']).dt.strftime('%B %d, %Y')
@@ -34,6 +35,13 @@ def clean_up_client_list():
     data['OHIP Number'] = data['OHIP Number'].astype(str)
     data['OHIP Number'] = data['OHIP Number'].replace('-', ' ', regex=True)
 
+    # clean up postal code, remove the space
+    data['Postal Code'] = data['Postal Code'].astype(str)
+    data['Postal Code'] = data['Postal Code'].replace(' ', '', regex=True)
+    # add space back to the postal code
+    data['Postal Code'] = data['Postal Code'].str.replace(r'(\w{3})(\w{3})', r'\1 \2',True)
+
+    # 
 
     data.to_csv('cleaned_data/Client List.csv',index=False)
 
