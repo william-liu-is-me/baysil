@@ -500,7 +500,7 @@ class Baby(Person):
                 else:
                         province = self.province
 
-                text = str(self.address or '') + ', ' + str(self.city or '') + ', ' + str(self.province or '') + ' ' + str(self.postal_code or '') + ' Canada'
+                text = str(self.address or '') + ', ' + str(self.city or '') + ', ' + str(province or '') + ' ' + str(self.postal_code or '') + ' Canada'
 
         
 
