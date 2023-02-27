@@ -273,22 +273,25 @@ class Mother(Person):
                 split_name = None
         mother_record['relatives'] = [
                 {       #leave empty
-                        'identifiedInSystem': None,
-                        'identifiedAs': None,
-                        'firstName': firstname,
-                        'middleName': middle_name,
-                        'lastName': lastname,
-                        'preferredName': self.partner_name,
-                        'relationship':'baysil_relationshipType_domesticPartner'
+                        'person':{
+                                'identifiedInSystem': None,
+                                'identifiedAs': None,
+                                'firstName': firstname,
+                                'middleName': middle_name,
+                                'lastName': lastname,
+                                'preferredName': self.partner_name,
+                        },
+                        'relationship':
+                                'baysil_relationshipType_domesticPartner'
                 }
         ]
         del firstname,middle_name,lastname,split_name
 
         # mother episode is created by each baby episode and attend to mother.episode
         if len(self.episode) > 0:
-            mother_record['episode'] = self.episode
+            mother_record['episodes'] = self.episode
         else:
-            mother_record['episode'] = 'pending for future update'
+            mother_record['episodes'] = 'pending for future update'
 
         # need to update account and notes for mother episode
 
@@ -445,8 +448,8 @@ class Baby(Person):
         identifier = self.parse_baby_ohc()
         self.baby_ohc = identifier
 
-        record_dict['identifications'] = {'system':'baysil_idSystem_ohip',
-                'identifier':identifier}
+        record_dict['identifications'] = [{'system':'baysil_idSystem_ohip',
+                'identifier':identifier}]
                 
                 # inside identifications, coc id is not required
                 # {'system':'baysil_idSystem_internal',
@@ -524,15 +527,19 @@ class Baby(Person):
         else:
                 coc_id = self.coc_id
         record_dict['relatives'] = [
-                {'identifiedInSystem':'baysil_idSystem_blueHeronCocid',
-                'identifier':str(coc_id),
-                # as per requirements
-                'firstName':None,#self.mother.first_name,
-                'middleName':None,#self.mother.middle_name,
-                'lastName':None,#self.mother.last_name,
-                'preferredName':None,#str(self.mother.first_name or '') + ' ' + str(self.mother.last_name or ''),
-                'relationship':'baysil_relationshipType_mother'}
-        ]
+                {
+                'person':{
+                        'identifiedInSystem':'baysil_idSystem_blueHeronCocid',
+                        'identifiedAs':str(coc_id),
+                        # as per requirements
+                        'firstName':None,#self.mother.first_name,
+                        'middleName':None,#self.mother.middle_name,
+                        'lastName':None,#self.mother.last_name,
+                        'preferredName':None,
+                },
+                'relationship':'baysil_relationshipType_mother'
+                }
+                                        ]
 
         self.build_baby_episode(record_dict,feeding_json)
        
@@ -585,10 +592,10 @@ class Baby(Person):
         mother_episode = {
         'start': self.initial_date,
         'end': self.d_c,
-        'identifications':{
+        'identifications':[{
                 'system':'baysil_idSystem_blueHeronCocid',
                 'identifier':identifier
-        },
+        }],
         'careManager': {
                 'firstName':None,
                 'middleName':None,
@@ -626,7 +633,7 @@ class Baby(Person):
         },
         'notes':self.parse_notes_remove_html(),
         'documents':[
-                {'fileName':f'path/{identifier}.pdf'}
+                {'fileName':f'{identifier}.pdf'}
         ],
         }
 
@@ -647,13 +654,13 @@ class Baby(Person):
         
         # if there are twins, the sequence number is A and B and etc.
         identifier = str(coc_id or '')+'B' + sequence_number
-        record_dict['episode'] = {
+        record_dict['episodes'] = {
                 'start': self.date_of_birth,
                 'end': self.d_c,
-                'identifications':{
+                'identifications':[{
                         'system':'baysil_idSystem_blueHeronCocid',
                         'identifier':identifier
-                },
+                }],
                 'careManager': {
                         'firstName':None,
                         'middleName':None,
@@ -661,10 +668,14 @@ class Baby(Person):
                 },
                 'careTeamParticipants':[
                         # MW-billing
-                        {'firstName':None,
-                        'middleName':None,
-                        'lastName':None,
-                        'role':'baysil_providerRole_primaryMidwife'}
+                        
+                        {'person':
+                                {'firstName':None,
+                                'middleName':None,
+                                'lastName':None,
+                        },
+                        'role':'baysil_providerRole_primaryMidwife'
+                        },
                         ],
                 # baby and mother has different obersevations
                 'observations':[
@@ -689,17 +700,19 @@ class Baby(Person):
                 'account':None,
                 'notes':None,
                 'documents':[
-                        {'fileName':f'path/{identifier}.pdf',}
+                        {'fileName':f'{identifier}.pdf',}
                 ]
                 }
         if self.delivery_type == 'Premature':
-            record_dict['episode']['observations'].insert(5,{'observable':'baysil_observable_pretermBirth',
+            record_dict['episodes']['observations'].insert(5,{'observable':'baysil_observable_pretermBirth',
                                 'value':self.delivery_type,
                                 'notes':None})
 
-            record_dict['episode']['observations'].pop(4)
+            record_dict['episodes']['observations'].pop(4)
 
         self.update_baby_care_team_participants(record_dict)#, mw_2nd_fee, mw_coordinating, mw_other2)
+
+        record_dict['episodes'] = [record_dict['episodes']]
 
 
 
@@ -711,22 +724,18 @@ class Baby(Person):
 
         try:
        
-            record_dict['episode']['careManager']['firstName'] = caremanager[0]
-            record_dict['episode']['careManager']['lastName'] = caremanager[1]
+            record_dict['episodes']['careManager']['firstName'] = caremanager[0]
+            record_dict['episodes']['careManager']['lastName'] = caremanager[1]
         except:
                 pass
         try:
-            record_dict['episode']['careTeamParticipants'][0]['firstName'] = primary_midwife[0]
-            record_dict['episode']['careTeamParticipants'][0]['lastName'] = primary_midwife[1]
+            record_dict['episodes']['careTeamParticipants'][0]['person']['firstName'] = primary_midwife[0]
+            record_dict['episodes']['careTeamParticipants'][0]['person']['lastName'] = primary_midwife[1]
         except:
                 pass
-        # try:
-        #     record_dict['episode']['careTeamParticipants'][1]['firstName'] = secondary_midwife[0]
-        #     record_dict['episode']['careTeamParticipants'][1]['lastName'] = secondary_midwife[1]
-        # except:
-        #         pass
 
-        self.handle_multiple_midwives_in_team_participants(secondary_midwife,record_dict['episode'],'baysil_providerRole_secondaryMidwife')
+
+        self.handle_multiple_midwives_in_team_participants(secondary_midwife,record_dict['episodes'],'baysil_providerRole_secondaryMidwife')
     
     def handle_multiple_midwives_in_team_participants(self,midwife,episode,role):
         if midwife:
@@ -735,11 +744,13 @@ class Baby(Person):
 
                 for item in midwife:
                         item = item.split(' ')
-
-                        episode['careTeamParticipants'].append({'firstName':item[0],
+                        episode['careTeamParticipants'].append({'person':
+                                {'firstName':item[0],
                                 'middleName':None,
-                                'lastName':item[1],
-                                'role':role})
+                                'lastName':item[1]},
+                                'role':role
+                                }
+                                )
 
     def update_mother_care_team_participants(self,mother_episode):
         # update the caremanager, primary midwife and secondary midwife
@@ -758,10 +769,13 @@ class Baby(Person):
                 pass
         
         if primary_midwife:
-                mother_episode['careTeamParticipants'].append({'firstName':primary_midwife[0],
+                mother_episode['careTeamParticipants'].append(
+                      {'person':{'firstName':primary_midwife[0],
                                 'middleName':None,
-                                'lastName':primary_midwife[1],
-                                'role':'baysil_providerRole_primaryMidwife'})
+                                'lastName':primary_midwife[1]},
+                        'role':'baysil_providerRole_primaryMidwife'
+                        }
+                        )
         
         self.handle_multiple_midwives_in_team_participants(secondary_midwife,mother_episode,'baysil_providerRole_secondaryMidwife')
 
