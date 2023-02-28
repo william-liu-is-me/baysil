@@ -73,32 +73,39 @@ class Mother(Person):
         mother_original_data_dictionary['may_contact'] = self.may_contact
         mother_original_data_dictionary['contact_method'] = self.contact_method
 
+        # handle multiple episode: add one more key value pair
+        temp = []
         for child in self.children:
-                mother_original_data_dictionary['Special population'] = child.special_population
-                mother_original_data_dictionary['Special population description'] = child.special_population_description
-                mother_original_data_dictionary['Gravida'] = child.gravida
-                mother_original_data_dictionary['Para'] = child.para
-                mother_original_data_dictionary['EDD'] = child.edd
-                mother_original_data_dictionary['Initial date'] = child.initial_date
-                mother_original_data_dictionary['D/C'] = child.d_c
-                mother_original_data_dictionary['Billing date'] = child.billing_date
-                mother_original_data_dictionary['Billable'] = child.billable
-                mother_original_data_dictionary['MW-billing'] = child.mw_billing
-                mother_original_data_dictionary['MW-other'] = child.mw_other
-                mother_original_data_dictionary['MW-other2'] = child.mw_other2
-                mother_original_data_dictionary['MW-coordinating'] = child.mw_coordinating
-                mother_original_data_dictionary['MW-2nd fee'] = child.mw_2nd_fee
-                mother_original_data_dictionary['IPCA'] = child.ipca
-                mother_original_data_dictionary['IPCA comment'] = child.ipca_comment
-                mother_original_data_dictionary['Notes'] = child.notes
-                mother_original_data_dictionary['Special Instructions'] = child.special_instructions
-                mother_original_data_dictionary['Chart Scan Date'] = child.chart_scan_date
-                mother_original_data_dictionary['Chart Shred Date'] = child.chart_shred_date
-                
+                if child.coc_id not in temp:
+                        temp.append(child.coc_id)
+                        key = f'notes for episode {child.coc_id}'
+                        # make a dictionary for each episode
+                        mother_original_data_dictionary[key] = {}
+                        mother_original_data_dictionary[key]['Special population'] = child.special_population
+                        mother_original_data_dictionary[key]['Special population description'] = child.special_population_description
+                        mother_original_data_dictionary[key]['Gravida'] = child.gravida
+                        mother_original_data_dictionary[key]['Para'] = child.para
+                        mother_original_data_dictionary[key]['EDD'] = child.edd
+                        mother_original_data_dictionary[key]['Initial date'] = child.initial_date
+                        mother_original_data_dictionary[key]['D/C'] = child.d_c
+                        mother_original_data_dictionary[key]['Billing date'] = child.billing_date
+                        mother_original_data_dictionary[key]['Billable'] = child.billable
+                        mother_original_data_dictionary[key]['MW-billing'] = child.mw_billing
+                        mother_original_data_dictionary[key]['MW-other'] = child.mw_other
+                        mother_original_data_dictionary[key]['MW-other2'] = child.mw_other2
+                        mother_original_data_dictionary[key]['MW-coordinating'] = child.mw_coordinating
+                        mother_original_data_dictionary[key]['MW-2nd fee'] = child.mw_2nd_fee
+                        mother_original_data_dictionary[key]['IPCA'] = child.ipca
+                        mother_original_data_dictionary[key]['IPCA comment'] = child.ipca_comment
+                        mother_original_data_dictionary[key]['Notes'] = child.notes
+                        mother_original_data_dictionary[key]['Special Instructions'] = child.special_instructions
+                        mother_original_data_dictionary[key]['Chart Scan Date'] = child.chart_scan_date
+                        mother_original_data_dictionary[key]['Chart Shred Date'] = child.chart_shred_date
 
         # end of client list file data
-
-        return {'Imported date': None,'original data':mother_original_data_dictionary}
+        # convert the dictionary into a string
+        temp_dict ={'original data': mother_original_data_dictionary}
+        return str(temp_dict)
 
 
     def parse_mother_ohip_number(self,clientinsurancetype):
@@ -355,36 +362,9 @@ class Baby(Person):
         baby_dict['MW attending - secondary'] = self.mw_secondary
         baby_dict['Birthplace'] = self.birth_place
         baby_dict['Birthplace comment'] = self.birth_place_comment
-        # end of baby information from 2 baby files 
-
-        # question: courses of care file add in here?
-        # no 
-
-        # baby_dict['Client Name'] = self.mother_name
-        # baby_dict['special population'] = self.special_population
-        # baby_dict['special population description'] = self.special_population_description
-        # baby_dict['gravida'] = self.gravida
-        # baby_dict['para'] = self.para
-        # baby_dict['EDD'] = self.edd
-        # baby_dict['Initial Date'] = self.initial_date
-        # baby_dict['D/C'] = self.d_c
-        # baby_dict['Billing Date'] = self.billing_date
-        # baby_dict['Billable'] = self.billable
-        # baby_dict['MW-billing'] = self.mw_billing
-        # baby_dict['MW-other'] = self.mw_other
-        # baby_dict['MW-other2'] = self.mw_other2
-        # baby_dict['MW-coordinating'] = self.mw_coordinating
-        # baby_dict['MW-2nd fee'] = self.mw_2nd_fee
-        # baby_dict['IPCA'] = self.ipca
-        # baby_dict['IPCA Comment'] = self.ipca_comment
-        # baby_dict['Notes'] = self.notes
-        # baby_dict['special instructions'] = self.special_instructions
-        # baby_dict['chart scan date'] = self.chart_scan_date
-        # baby_dict['chart shred date'] = self.chart_shred_date
-
-
-
-        return {'Imported date': None,'original data':baby_dict}
+        
+        temp_dict = {'original data':baby_dict}
+        return str(temp_dict)
 
     def parse_baby_ohc(self):
         if self.baby_ohc:

@@ -246,21 +246,21 @@ def main(volumn,create_json=False):
                 if child.coc_id in twin_coc_id:
 
                     sequence_number = chr(twin_coc_id.index(child.coc_id) + 65 + n)
-                    final_identifier = child.record['episode']['identifications']['identifier'] + sequence_number
-                    child.record['episode']['identifications']['identifier'] = final_identifier
+                    final_identifier = child.record['episodes'][0]['identifications'][0]['identifier'] + sequence_number
+                    child.record['episodes'][0]['identifications'][0]['identifier'] = final_identifier
                     # question: assume there is only 1 file in the documents
-                    child.record['episode']['documents'][0]['fileName']=f'path/{final_identifier}.pdf'
+                    child.record['episodes'][0]['documents'][0]['fileName']=f'{final_identifier}.pdf'
                     n += 1
 
             # mother episode can be combined into one episode when the episode is from a twin
             episode_list = []
             for episode in mother.episode:
                 # if the identifier already exist, remove this episode from mother.episode 
-                if episode['identifications']['identifier'] in episode_list:
+                if episode['identifications'][0]['identifier'] in episode_list:
                     mother.episode.remove(episode)
                     # remove the last item in episode_list
                 else:
-                    episode_list.append(episode['identifications']['identifier'])
+                    episode_list.append(episode['identifications'][0]['identifier'])
                       
 
             
@@ -280,4 +280,4 @@ def main(volumn,create_json=False):
         
 
 if __name__ == '__main__':
-    main(10,True)
+    main(-1,False)
