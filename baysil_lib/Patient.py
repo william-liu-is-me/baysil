@@ -176,8 +176,7 @@ class Mother(Person):
         
         mother_record['gender'] = 'baysil_gender_female'
         mother_record['dateOfBirth'] = self.date_of_birth
-        # question: if many children, which speical population description should be used?
-        # now let's use all
+
         try:
                 final_description = []
                 for description in self.population_groups:
@@ -227,11 +226,9 @@ class Mother(Person):
                 'preferredSystemType':b,
                 'preferredUse':c
                 }
-                
-        
         # if address is None, text will be None
-
         # manual data cleanup for address and city, province, postal code is required
+        
         if self.address == None:
 
                 text = None
@@ -307,8 +304,6 @@ class Mother(Person):
         return mother_record
 
 
-
-
 class Baby(Person):
 
 
@@ -332,9 +327,6 @@ class Baby(Person):
         self.toc = toc
         self.mw_primary = mw_primary
         self.mw_secondary = mw_secondary
-        # self.mw_2nd_fee = mw_2nd_fee
-        # self.mw_coordinating = mw_coordinating
-        # self.mw_other2 = mw_other2
         self.birth_place = birth_place
         self.baby_ohc = baby_ohc
         self.birth_place_comment = birth_place_comment
@@ -384,9 +376,6 @@ class Baby(Person):
                         else:
                                 return None
 
-                        # add one space after 4 digits and another space after 7 digits
-                        #number = number[:4] + ' ' + number[4:7] + ' ' + number[7:]
-
                 except:
                         return None
         else:
@@ -431,13 +420,6 @@ class Baby(Person):
         record_dict['identifications'] = [{'system':'baysil_idSystem_ohip',
                 'identifier':identifier}]
                 
-                # inside identifications, coc id is not required
-                # {'system':'baysil_idSystem_internal',
-                # 'name':'CoC ID',
-                # 'identifier':str(self.coc_id or '')+'-B'}
-        
-        # add baby's coc_id to mother's coc_id
-        # self.mother.coc_id = self.coc_id
         contact_info = []
         if self.mother.email:
                 contact_info.append({'system':'baysil_contactSystem_email',
@@ -485,8 +467,6 @@ class Baby(Person):
 
                 text = str(self.address or '') + ', ' + str(self.city or '') + ', ' + str(province or '') + ' ' + str(self.postal_code or '') + ' Canada'
 
-        
-
         # question, if data missing, cannot perfrom string concatenation, how to handle this?
         record_dict['locations'] = [
                 {'name':'Home address',
@@ -500,7 +480,6 @@ class Baby(Person):
                 }}
         ]
         
-
         # coc_id is 5 digits, if it is less than 5 digits, add 0 in front of it
         if self.coc_id:
                 coc_id = str(self.coc_id).zfill(5)

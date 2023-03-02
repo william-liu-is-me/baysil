@@ -24,15 +24,8 @@ def main(volumn,create_json=False):
 
     del data
 
-
-
     data = pd.read_csv('cleaned_data/Blue Heron Babies and Birth Log.csv')
     data = data.replace(np.nan,None)
-
-    # check memory usage
-    # process = psutil.Process()
-    # print(process.memory_info().rss / 1024 ** 2,'MB')
-
 
     baby_list = []
     for index, row in data.iterrows():
@@ -51,7 +44,6 @@ def main(volumn,create_json=False):
     # check memory usage
     del data
 
-
     # read the data from Courses of Care.csv
     data = pd.read_csv('cleaned_data/Courses of Care.csv')
     data = data.replace(np.nan,None)
@@ -65,7 +57,6 @@ def main(volumn,create_json=False):
 
         # get the value of the row 
         row = row.to_dict('records')[0]
-
 
         # row is the dictionary of the row
         # mother's name 
@@ -280,4 +271,4 @@ def main(volumn,create_json=False):
         
 
 if __name__ == '__main__':
-    main(-1,False)
+    main(10,True)
