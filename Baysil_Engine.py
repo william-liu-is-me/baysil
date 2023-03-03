@@ -4,7 +4,7 @@ import numpy as np
 from baysil_lib.Patient import *
 import collections
 
-def main(volumn,create_json=False):
+def main(volumn,create_json=False,final_list_check=False):
     # data read and clean up for client list
     data = pd.read_csv('cleaned_data/Client List.csv')
     # fill nan with None
@@ -196,6 +196,9 @@ def main(volumn,create_json=False):
 
     multiple_baby_list = []
     
+    # to create the final list for delivery
+    big_list = []
+    
     for mother in mother_list:
         family_list = []
 
@@ -241,6 +244,7 @@ def main(volumn,create_json=False):
                     child.record['episodes'][0]['identifications'][0]['identifier'] = final_identifier
                     # question: assume there is only 1 file in the documents
                     child.record['episodes'][0]['documents'][0]['fileName']=f'{final_identifier}.pdf'
+                    child.record['notes']['original data']['coc id']=final_identifier
                     n += 1
 
             # mother episode can be combined into one episode when the episode is from a twin
@@ -252,9 +256,10 @@ def main(volumn,create_json=False):
                     # remove the last item in episode_list
                 else:
                     episode_list.append(episode['identifications'][0]['identifier'])
-                      
 
-            
+        for child in mother.children:
+            #print(child.record['notes']['original data']['coc id'])           
+            child.record['notes'] = str(child.record['notes'])
         # convert mother.coc_id to a string
         temp_name = ', '.join(str(item) for item in mother.coc_id)
 
@@ -265,10 +270,16 @@ def main(volumn,create_json=False):
         
         count += 1
 
+        # make all list into a big list
+        big_list.extend(family_list)
+
+    if final_list_check:
+        with open('sample/final_list.json', 'w') as outfile:
+            json.dump(big_list, outfile)
 
     df = pd.DataFrame({'mother_name':temp_list_1,'mother_cod_id':temp_list_3,'number_of_episode':temp_list_2})
     df.to_csv('check_list/number of baby for each mother.csv',index=False)
         
 
 if __name__ == '__main__':
-    main(10,True)
+    main(3,False,False)

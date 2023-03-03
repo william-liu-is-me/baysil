@@ -78,7 +78,8 @@ class Mother(Person):
         for child in self.children:
                 if child.coc_id not in temp:
                         temp.append(child.coc_id)
-                        key = f'notes for episode {child.coc_id}'
+                        temp_cocid = str(child.coc_id).zfill(5)
+                        key = f'notes for episode {temp_cocid}'
                         # make a dictionary for each episode
                         mother_original_data_dictionary[key] = {}
                         mother_original_data_dictionary[key]['Special population'] = child.special_population
@@ -336,9 +337,10 @@ class Baby(Person):
         baby_dict = {}
         # coc id is 5 digit number, need to add 0s in front
         if self.coc_id:
-                coc_id = str(self.coc_id).zfill(5)
+                coc_id = str(self.coc_id).zfill(5) + 'B'
         else:
                 coc_id = self.coc_id
+
         baby_dict['coc id'] = coc_id
         baby_dict['first name'] = self.first_name
         baby_dict['last name'] = self.last_name
@@ -356,7 +358,7 @@ class Baby(Person):
         baby_dict['Birthplace comment'] = self.birth_place_comment
         
         temp_dict = {'original data':baby_dict}
-        return str(temp_dict)
+        return temp_dict
 
     def parse_baby_ohc(self):
         if self.baby_ohc:
@@ -543,11 +545,9 @@ class Baby(Person):
 
     def build_mother_episode(self):
         # cocid is 5 digits, if it is less than 5 digits, add 0 in front of it
-        if self.coc_id:
-                coc_id = str(self.coc_id).zfill(5)
-        else:
-                coc_id = self.coc_id
-        identifier = str(coc_id or '')
+
+        coc_id = str(self.coc_id).zfill(5)
+        identifier = str(coc_id)
         mother_episode = {
         'start': self.initial_date,
         'end': self.d_c,
